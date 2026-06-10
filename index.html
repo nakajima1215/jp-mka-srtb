@@ -54,6 +54,23 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:9px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9999;white-space:nowrap;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .toast.show{opacity:1}
 
+/* ===== パスコード画面 ===== */
+#passcode-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0d2f6e 0%,#1251a3 45%,#0a3d8f 100%);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+#passcode-screen::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);pointer-events:none}
+.pc-box{position:relative;background:rgba(5,30,90,.75);border:1px solid rgba(120,180,255,.35);border-radius:16px;padding:36px 40px;display:flex;flex-direction:column;align-items:center;gap:18px;min-width:280px}
+.pc-logo{font-size:28px;letter-spacing:.04em}
+.pc-title{font-size:17px;font-weight:700;color:#aed8ff;letter-spacing:.08em;text-align:center}
+.pc-sub{font-size:12px;color:#6a9fd8;letter-spacing:.04em}
+.pc-dots{display:flex;gap:14px;margin:4px 0}
+.pc-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(160,210,255,.5);background:transparent;transition:all .2s}
+.pc-dot.filled{background:#aed8ff;border-color:#aed8ff;box-shadow:0 0 8px rgba(174,216,255,.7)}
+.pc-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.pc-key{padding:14px 0;border:1px solid rgba(160,210,255,.3);border-radius:10px;background:rgba(160,210,255,.08);color:#aed8ff;font-size:20px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;user-select:none;-webkit-user-select:none}
+.pc-key:hover{background:rgba(160,210,255,.2);border-color:rgba(160,210,255,.6)}
+.pc-key:active{transform:scale(.93);background:rgba(160,210,255,.3)}
+.pc-key.del{font-size:15px;color:#7a9fc0}
+.pc-err{font-size:13px;color:#ff8080;min-height:18px;text-align:center}
+
 /* ===== 閲覧画面 ===== */
 #pane-view{
   position:fixed;top:0;left:0;width:100vw;height:100vh;
@@ -108,9 +125,9 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .prod-table tr:last-child td{border-bottom:none}
 .prod-table tr:hover td{background:rgba(60,130,255,.3)}
 .prod-table td strong{color:#fff;text-shadow:0 0 8px rgba(180,220,255,.5)}
-.proc-tag{font-size:12px;color:#7df4ff;background:rgba(100,220,255,.12);border:1px solid rgba(100,220,255,.4);padding:1px 7px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;text-shadow:0 0 8px rgba(120,230,255,.5)}
+.proc-tag{font-size:12px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 7px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;text-shadow:0 0 8px rgba(255,220,50,.4)}
 .cbadge{font-size:11px;padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;margin-right:3px;font-weight:600}
-.cb-on{background:rgba(80,200,255,.12);color:#5dd8ff;border:1px solid rgba(80,200,255,.35);text-shadow:0 0 6px rgba(80,200,255,.5)}
+.cb-on{background:rgba(255,180,200,.15);color:#ffb3c6;border:1px solid rgba(255,160,185,.5);text-shadow:0 0 6px rgba(255,160,185,.4)}
 .cb-off{background:rgba(255,255,255,.04);color:#2a5080;border:1px solid rgba(255,255,255,.07)}
 .next-table{width:100%;border-collapse:collapse;font-size:13px}
 .next-table th{font-size:10px;color:#aad8ff;font-weight:700;padding:5px 6px;text-align:left;border-bottom:1px solid rgba(160,215,255,.3);background:rgba(30,90,210,.4)}
@@ -128,6 +145,81 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 </style>
 </head>
 <body>
+
+<!-- パスコード画面 -->
+<div id="passcode-screen">
+  <div class="pc-box">
+    <div class="pc-logo">🏭</div>
+    <div class="pc-title">JP-M課 生産リアルタイムボード</div>
+    <div class="pc-sub">パスコードを入力してください</div>
+    <div class="pc-dots">
+      <div class="pc-dot" id="d0"></div>
+      <div class="pc-dot" id="d1"></div>
+      <div class="pc-dot" id="d2"></div>
+      <div class="pc-dot" id="d3"></div>
+    </div>
+    <div class="pc-err" id="pc-err"></div>
+    <div class="pc-keypad">
+      <button class="pc-key" onclick="pcInput('1')">1</button>
+      <button class="pc-key" onclick="pcInput('2')">2</button>
+      <button class="pc-key" onclick="pcInput('3')">3</button>
+      <button class="pc-key" onclick="pcInput('4')">4</button>
+      <button class="pc-key" onclick="pcInput('5')">5</button>
+      <button class="pc-key" onclick="pcInput('6')">6</button>
+      <button class="pc-key" onclick="pcInput('7')">7</button>
+      <button class="pc-key" onclick="pcInput('8')">8</button>
+      <button class="pc-key" onclick="pcInput('9')">9</button>
+      <button class="pc-key del" onclick="pcClear()">クリア</button>
+      <button class="pc-key" onclick="pcInput('0')">0</button>
+      <button class="pc-key del" onclick="pcBack()">⌫</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const PASS='1215';
+  let buf='';
+  function updateDots(){
+    for(let i=0;i<4;i++){
+      document.getElementById('d'+i).className='pc-dot'+(i<buf.length?' filled':'');
+    }
+  }
+  function shake(){
+    const box=document.querySelector('.pc-box');
+    box.style.animation='none';
+    setTimeout(()=>{box.style.animation='pcShake .4s ease';},10);
+  }
+  const style=document.createElement('style');
+  style.textContent='@keyframes pcShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}';
+  document.head.appendChild(style);
+  window.pcInput=function(n){
+    if(buf.length>=4) return;
+    buf+=n;
+    updateDots();
+    document.getElementById('pc-err').textContent='';
+    if(buf.length===4){
+      if(buf===PASS){
+        document.getElementById('passcode-screen').style.display='none';
+      } else {
+        document.getElementById('pc-err').textContent='パスコードが違います';
+        shake();
+        setTimeout(()=>{ buf=''; updateDots(); },700);
+      }
+    }
+  };
+  window.pcBack=function(){
+    buf=buf.slice(0,-1);
+    updateDots();
+    document.getElementById('pc-err').textContent='';
+  };
+  window.pcClear=function(){
+    buf='';
+    updateDots();
+    document.getElementById('pc-err').textContent='';
+  };
+})();
+</script>
+
 
 <div class="header">
   <div>
