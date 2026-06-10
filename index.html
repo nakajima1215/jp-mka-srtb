@@ -292,6 +292,15 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_4"> 1回目</label><label><input type="checkbox" id="c2_4"> 2回目</label></div>
     </div>
+    <div class="card">
+      <div class="card-title">品名 ⑤</div>
+      <div class="row">
+        <div class="field field-xl"><label>品名</label><input type="text" id="pn5" list="dl-pn5" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn5"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps5" list="dl-ps5" placeholder="01" autocomplete="off"><datalist id="dl-ps5"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe5" list="dl-pe5" placeholder="05" autocomplete="off"><datalist id="dl-pe5"></datalist></div>
+      </div>
+      <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_5"> 1回目</label><label><input type="checkbox" id="c2_5"> 2回目</label></div>
+    </div>
 
     <div class="sec-label">NEXT 生産予定</div>
     <div class="card">
@@ -310,11 +319,6 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
         <div class="field"><input type="text" id="nn3" list="dl-nn3" placeholder="品名③" autocomplete="off"><datalist id="dl-nn3"></datalist></div>
         <div class="field"><input type="text" id="nps3" list="dl-nps3" placeholder="01" autocomplete="off"><datalist id="dl-nps3"></datalist></div>
         <div class="field"><input type="text" id="npe3" list="dl-npe3" placeholder="05" autocomplete="off"><datalist id="dl-npe3"></datalist></div>
-      </div>
-      <div class="next-row">
-        <div class="field"><input type="text" id="nn4" list="dl-nn4" placeholder="品名④" autocomplete="off"><datalist id="dl-nn4"></datalist></div>
-        <div class="field"><input type="text" id="nps4" list="dl-nps4" placeholder="01" autocomplete="off"><datalist id="dl-nps4"></datalist></div>
-        <div class="field"><input type="text" id="npe4" list="dl-npe4" placeholder="05" autocomplete="off"><datalist id="dl-npe4"></datalist></div>
       </div>
     </div>
 
@@ -365,7 +369,7 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const COL = "lines"; // Firestoreコレクション名
 
-const MARKS   = ['①','②','③','④'];
+const MARKS   = ['①','②','③','④','⑤'];
 const LS_HIST = 'seisan_hist_v2';
 const MAX_HIST = 5;
 
@@ -395,10 +399,10 @@ const ALL_FIELDS=[
   ['pn2','dl-pn2'],['ps2','dl-ps2'],['pe2','dl-pe2'],
   ['pn3','dl-pn3'],['ps3','dl-ps3'],['pe3','dl-pe3'],
   ['pn4','dl-pn4'],['ps4','dl-ps4'],['pe4','dl-pe4'],
+  ['pn5','dl-pn5'],['ps5','dl-ps5'],['pe5','dl-pe5'],
   ['nn1','dl-nn1'],['nps1','dl-nps1'],['npe1','dl-npe1'],
   ['nn2','dl-nn2'],['nps2','dl-nps2'],['npe2','dl-npe2'],
   ['nn3','dl-nn3'],['nps3','dl-nps3'],['npe3','dl-npe3'],
-  ['nn4','dl-nn4'],['nps4','dl-nps4'],['npe4','dl-npe4'],
 ];
 function refreshAllDL(){ ALL_FIELDS.forEach(([fk,dl])=>buildDL(fk,dl)); }
 
@@ -417,21 +421,23 @@ function showBanner(msg){
 function fillForm(data){
   setV('updater',data.updater);
   const prods=data.prods||[];
-  for(let i=0;i<4;i++){
+  for(let i=0;i<5;i++){
     const p=prods[i]||{};
     setV('pn'+(i+1),p.name); setV('ps'+(i+1),p.start); setV('pe'+(i+1),p.end);
     setChk('c1_'+(i+1),p.check1); setChk('c2_'+(i+1),p.check2);
   }
   const nexts=data.nexts||[];
-  for(let i=0;i<4;i++){
+  for(let i=0;i<3;i++){
     const n=nexts[i]||{};
     setV('nn'+(i+1),n.name); setV('nps'+(i+1),n.start); setV('npe'+(i+1),n.end);
   }
 }
 function clearProductAndNext(){
-  for(let i=1;i<=4;i++){
+  for(let i=1;i<=5;i++){
     setV('pn'+i,''); setV('ps'+i,''); setV('pe'+i,'');
     setChk('c1_'+i,false); setChk('c2_'+i,false);
+  }
+  for(let i=1;i<=3;i++){
     setV('nn'+i,''); setV('nps'+i,''); setV('npe'+i,'');
   }
 }
@@ -475,9 +481,9 @@ window.saveData = async function(){
   refreshAllDL();
 
   const prods=[];
-  for(let i=1;i<=4;i++) prods.push({name:v('pn'+i),start:v('ps'+i),end:v('pe'+i),check1:chk('c1_'+i),check2:chk('c2_'+i)});
+  for(let i=1;i<=5;i++) prods.push({name:v('pn'+i),start:v('ps'+i),end:v('pe'+i),check1:chk('c1_'+i),check2:chk('c2_'+i)});
   const nexts=[];
-  for(let i=1;i<=4;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
+  for(let i=1;i<=3;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
 
   const data={lineNo,updater:v('updater'),prods,nexts,updatedAt:new Date().toISOString()};
   const docId=lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_');
