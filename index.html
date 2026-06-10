@@ -54,22 +54,26 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:9px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9999;white-space:nowrap;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .toast.show{opacity:1}
 
-/* ===== パスコード画面 ===== */
-#passcode-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0d2f6e 0%,#1251a3 45%,#0a3d8f 100%);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
-#passcode-screen::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);pointer-events:none}
-.pc-box{position:relative;background:rgba(5,30,90,.75);border:1px solid rgba(120,180,255,.35);border-radius:16px;padding:36px 40px;display:flex;flex-direction:column;align-items:center;gap:18px;min-width:280px}
-.pc-logo{font-size:28px;letter-spacing:.04em}
-.pc-title{font-size:17px;font-weight:700;color:#aed8ff;letter-spacing:.08em;text-align:center}
-.pc-sub{font-size:12px;color:#6a9fd8;letter-spacing:.04em}
-.pc-dots{display:flex;gap:14px;margin:4px 0}
-.pc-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(160,210,255,.5);background:transparent;transition:all .2s}
-.pc-dot.filled{background:#aed8ff;border-color:#aed8ff;box-shadow:0 0 8px rgba(174,216,255,.7)}
-.pc-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
-.pc-key{padding:14px 0;border:1px solid rgba(160,210,255,.3);border-radius:10px;background:rgba(160,210,255,.08);color:#aed8ff;font-size:20px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;user-select:none;-webkit-user-select:none}
-.pc-key:hover{background:rgba(160,210,255,.2);border-color:rgba(160,210,255,.6)}
-.pc-key:active{transform:scale(.93);background:rgba(160,210,255,.3)}
-.pc-key.del{font-size:15px;color:#7a9fc0}
-.pc-err{font-size:13px;color:#ff8080;min-height:18px;text-align:center}
+/* ===== ログイン画面 ===== */
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0d2f6e 0%,#1251a3 45%,#0a3d8f 100%);z-index:9000;display:flex;align-items:center;justify-content:center}
+#login-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);pointer-events:none}
+.lg-box{position:relative;background:rgba(5,30,90,.80);border:1px solid rgba(120,180,255,.35);border-radius:18px;padding:40px 36px;display:flex;flex-direction:column;align-items:center;gap:18px;width:320px;max-width:92vw}
+.lg-logo{font-size:32px}
+.lg-title{font-size:16px;font-weight:700;color:#aed8ff;letter-spacing:.06em;text-align:center;line-height:1.5}
+.lg-sub{font-size:12px;color:#6a9fd8;letter-spacing:.04em}
+.lg-field{width:100%;display:flex;flex-direction:column;gap:5px}
+.lg-field label{font-size:12px;color:#7ab2dd;font-weight:600;letter-spacing:.04em}
+.lg-field input{height:42px;padding:0 14px;border:1px solid rgba(120,180,255,.35);border-radius:9px;background:rgba(160,210,255,.07);color:#dff0ff;font-size:14px;width:100%;outline:none;transition:all .15s}
+.lg-field input::placeholder{color:rgba(160,210,255,.35)}
+.lg-field input:focus{border-color:rgba(160,210,255,.7);background:rgba(160,210,255,.12);box-shadow:0 0 0 3px rgba(120,180,255,.15)}
+.lg-btn{width:100%;height:44px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.04em;box-shadow:0 3px 12px rgba(29,158,117,.45)}
+.lg-btn:hover{background:#168a63}
+.lg-btn:active{transform:scale(.97)}
+.lg-btn:disabled{opacity:.5;cursor:not-allowed}
+.lg-err{font-size:13px;color:#ff8080;min-height:18px;text-align:center;width:100%}
+.lg-loading{font-size:13px;color:#6a9fd8;text-align:center;display:none}
+@keyframes lgShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+
 
 /* ===== 閲覧画面 ===== */
 #pane-view{
@@ -146,85 +150,36 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 </head>
 <body>
 
-<!-- パスコード画面 -->
-<div id="passcode-screen">
-  <div class="pc-box">
-    <div class="pc-logo">🏭</div>
-    <div class="pc-title">JP-M課 生産リアルタイムボード</div>
-    <div class="pc-sub">パスコードを入力してください</div>
-    <div class="pc-dots">
-      <div class="pc-dot" id="d0"></div>
-      <div class="pc-dot" id="d1"></div>
-      <div class="pc-dot" id="d2"></div>
-      <div class="pc-dot" id="d3"></div>
+
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="lg-box">
+    <div class="lg-logo">🏭</div>
+    <div class="lg-title">JP-M課<br>生産リアルタイムボード</div>
+    <div class="lg-sub">メールアドレスとパスワードでログイン</div>
+    <div class="lg-field">
+      <label>メールアドレス</label>
+      <input type="email" id="lg-email" placeholder="example@email.com" autocomplete="email">
     </div>
-    <div class="pc-err" id="pc-err"></div>
-    <div class="pc-keypad">
-      <button class="pc-key" onclick="pcInput('1')">1</button>
-      <button class="pc-key" onclick="pcInput('2')">2</button>
-      <button class="pc-key" onclick="pcInput('3')">3</button>
-      <button class="pc-key" onclick="pcInput('4')">4</button>
-      <button class="pc-key" onclick="pcInput('5')">5</button>
-      <button class="pc-key" onclick="pcInput('6')">6</button>
-      <button class="pc-key" onclick="pcInput('7')">7</button>
-      <button class="pc-key" onclick="pcInput('8')">8</button>
-      <button class="pc-key" onclick="pcInput('9')">9</button>
-      <button class="pc-key del" onclick="pcClear()">クリア</button>
-      <button class="pc-key" onclick="pcInput('0')">0</button>
-      <button class="pc-key del" onclick="pcBack()">⌫</button>
+    <div class="lg-field">
+      <label>パスワード</label>
+      <input type="password" id="lg-pass" placeholder="パスワード" autocomplete="current-password">
     </div>
+    <div class="lg-err" id="lg-err"></div>
+    <button class="lg-btn" id="lg-btn" onclick="doLogin()">ログイン</button>
+    <div class="lg-loading" id="lg-loading">認証中…</div>
   </div>
 </div>
-<script>
-(function(){
-  const PASS='1215';
-  let buf='';
-  function updateDots(){
-    for(let i=0;i<4;i++){
-      document.getElementById('d'+i).className='pc-dot'+(i<buf.length?' filled':'');
-    }
-  }
-  function shake(){
-    const box=document.querySelector('.pc-box');
-    box.style.animation='none';
-    setTimeout(()=>{box.style.animation='pcShake .4s ease';},10);
-  }
-  const style=document.createElement('style');
-  style.textContent='@keyframes pcShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}';
-  document.head.appendChild(style);
-  window.pcInput=function(n){
-    if(buf.length>=4) return;
-    buf+=n;
-    updateDots();
-    document.getElementById('pc-err').textContent='';
-    if(buf.length===4){
-      if(buf===PASS){
-        document.getElementById('passcode-screen').style.display='none';
-      } else {
-        document.getElementById('pc-err').textContent='パスコードが違います';
-        shake();
-        setTimeout(()=>{ buf=''; updateDots(); },700);
-      }
-    }
-  };
-  window.pcBack=function(){
-    buf=buf.slice(0,-1);
-    updateDots();
-    document.getElementById('pc-err').textContent='';
-  };
-  window.pcClear=function(){
-    buf='';
-    updateDots();
-    document.getElementById('pc-err').textContent='';
-  };
-})();
-</script>
 
-
+<div id="main-app" style="display:none">
 <div class="header">
-  <div>
+  <div style="flex:1">
     <h1>🏭 JP-M課 生産リアルタイムボード</h1>
     <div class="subtitle">稼働製品・工程・NEXT生産予定 入力・閲覧システム</div>
+  </div>
+  <div id="header-user" style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <span id="user-email-disp" style="font-size:11px;opacity:.75;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button onclick="doLogout()" style="padding:5px 12px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap">ログアウト</button>
   </div>
 </div>
 
@@ -347,13 +302,15 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
     </div>
   </div>
 </div>
+</div><!-- /main-app -->
 
 <div class="toast" id="toast"></div>
 
 <!-- Firebase SDK (CDN) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyASiL5-z-DpyDEytgsvBLKYh5ij0jdwuuc",
@@ -366,8 +323,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-const COL = "lines"; // Firestoreコレクション名
+const db   = getFirestore(app);
+const auth = getAuth(app);
+const COL  = "lines";
+let currentUser = null;
 
 const MARKS   = ['①','②','③','④','⑤'];
 const LS_HIST = 'seisan_hist_v2';
@@ -615,9 +574,62 @@ window.switchTab = function(tab){
   else{ stopListener(); }
 };
 
-/* ===== 初期化 ===== */
-refreshAllDL();
-setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
+/* ===== ログイン・ログアウト ===== */
+window.doLogin = async function(){
+  const email = document.getElementById('lg-email').value.trim();
+  const pass  = document.getElementById('lg-pass').value;
+  const errEl = document.getElementById('lg-err');
+  const btn   = document.getElementById('lg-btn');
+  const loading = document.getElementById('lg-loading');
+  errEl.textContent = '';
+  if(!email||!pass){ errEl.textContent='メールアドレスとパスワードを入力してください'; return; }
+  btn.disabled=true; loading.style.display='block';
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e){
+    let msg='ログインに失敗しました';
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='メールアドレスまたはパスワードが正しくありません';
+    else if(e.code==='auth/invalid-email') msg='メールアドレスの形式が正しくありません';
+    else if(e.code==='auth/too-many-requests') msg='ログイン試行が多すぎます。しばらく待ってから再試行してください';
+    errEl.textContent=msg;
+    document.querySelector('.lg-box').style.animation='lgShake .4s ease';
+    setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
+  }
+  btn.disabled=false; loading.style.display='none';
+};
+
+window.doLogout = async function(){
+  stopListener();
+  await signOut(auth);
+};
+
+// Enterキーでログイン
+document.getElementById('lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
+document.getElementById('lg-email').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lg-pass').focus(); });
+
+/* ===== 認証状態の監視 ===== */
+onAuthStateChanged(auth, user => {
+  if(user){
+    currentUser = user;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    document.getElementById('user-email-disp').textContent = user.email;
+    refreshAllDL();
+    setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
+  } else {
+    currentUser = null;
+    stopListener();
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    // 入力画面に戻す
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+    const inputTab = document.querySelector(".tab[onclick=\"switchTab('input')\"]");
+    if(inputTab) inputTab.classList.add('active');
+    const inputPane = document.getElementById('pane-input');
+    if(inputPane) inputPane.classList.add('active');
+  }
+});
 
 </script>
 </body>
