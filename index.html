@@ -83,7 +83,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 }
 #pane-view.active{display:flex}
 #pane-view::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);pointer-events:none;z-index:0}
-.view-header-bar{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(5,30,90,.75);border-bottom:1px solid rgba(120,180,255,.35);flex-shrink:0}
+.view-header-bar{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:6px 14px;background:rgba(5,30,90,.75);border-bottom:1px solid rgba(120,180,255,.35);flex-shrink:0}
 .view-title-block h2{font-size:14px;font-weight:700;color:#aed8ff;letter-spacing:.08em;text-shadow:0 0 16px rgba(160,210,255,.7)}
 .view-title-block .sub{font-size:10px;color:#6a9fd8;margin-top:1px;letter-spacing:.04em}
 .view-ctrl{display:flex;align-items:center;gap:8px}
@@ -101,7 +101,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .page-dot.active{background:#aed8ff;box-shadow:0 0 6px rgba(160,210,255,.6)}
 
 /* グリッド */
-.view-page{position:relative;z-index:1;flex:1;overflow:hidden;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:2px;padding:2px;background:rgba(120,180,255,.15);align-content:start}
+.view-page{position:relative;z-index:1;flex:1;overflow:hidden;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:3px;padding:3px;background:rgba(120,180,255,.18);align-content:start}
 
 /* ラインカード — 文字が映える深めのコントラスト背景 */
 .vline{
@@ -112,49 +112,49 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   box-shadow:inset 0 1px 0 rgba(120,180,255,.1);
 }
 .vl-hd{
-  padding:5px 8px;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;
+  padding:4px 8px;display:flex;align-items:center;gap:5px;flex-wrap:nowrap;
   background:linear-gradient(90deg,rgba(10,55,160,.95) 0%,rgba(5,35,130,.9) 100%);
   border-bottom:2px solid rgba(100,180,255,.5);
   flex-shrink:0;
 }
-.vl-no{font-size:13px;font-weight:800;color:#fff;letter-spacing:.06em;white-space:nowrap;text-shadow:0 0 10px rgba(180,225,255,.9)}
-.vl-who{font-size:10px;color:#cce8ff;background:rgba(140,200,255,.18);padding:1px 6px;border-radius:3px;white-space:nowrap}
-.vl-when{font-size:10px;color:#6aaee0;margin-left:auto;white-space:nowrap;flex-shrink:0}
+.vl-no{font-size:16px;font-weight:800;color:#fff;letter-spacing:.06em;white-space:nowrap;text-shadow:0 0 10px rgba(180,225,255,.9)}
+.vl-who{font-size:12px;color:#cce8ff;background:rgba(140,200,255,.18);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.vl-when{font-size:11px;color:#6aaee0;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .vl-del-btn{
   background:rgba(255,80,80,.15);border:1px solid rgba(255,100,100,.35);color:#ff8080;
   border-radius:4px;padding:1px 7px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-  transition:all .15s;line-height:1.6;
+  transition:all .15s;line-height:1.8;
 }
 .vl-del-btn:hover{background:rgba(255,80,80,.35);color:#fff;border-color:rgba(255,120,120,.6)}
 
 /* 統合テーブル（工程＋中間検査＋NEXT） */
-.vl-body{padding:4px 6px 6px;flex:1;overflow:hidden}
-.unified-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.vl-body{padding:3px 5px 5px;flex:1;overflow:hidden}
+.unified-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
 .unified-table th{
-  font-size:9px;color:#7ab8e8;font-weight:700;padding:3px 4px;text-align:left;
+  font-size:11px;color:#7ab8e8;font-weight:700;padding:4px 5px;text-align:left;
   border-bottom:1px solid rgba(160,215,255,.3);background:rgba(30,90,210,.45);
   white-space:nowrap;overflow:hidden;
 }
 .unified-table td{
-  padding:3px 4px;border-bottom:1px solid rgba(100,160,255,.12);
+  padding:4px 5px;border-bottom:1px solid rgba(100,160,255,.12);
   vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .unified-table tr:last-child td{border-bottom:none}
 .unified-table .section-sep td{
-  background:rgba(30,90,210,.3);color:#7ab8e8;font-size:9px;font-weight:700;
-  letter-spacing:.06em;padding:2px 4px;border-bottom:1px solid rgba(160,215,255,.25);
+  background:rgba(30,90,210,.3);color:#9fd0ff;font-size:11px;font-weight:700;
+  letter-spacing:.06em;padding:3px 5px;border-bottom:1px solid rgba(160,215,255,.25);
   border-top:1px solid rgba(160,215,255,.15);
 }
 .td-name{color:#e8f4ff;font-weight:600;width:38%}
 .td-proc{width:22%;text-align:center}
 .td-chk{width:20%;text-align:center}
 .td-next-mark{width:20%;text-align:center}
-.proc-tag{font-size:10px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:0 5px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
-.cbadge{font-size:10px;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;margin-right:2px;font-weight:600}
+.proc-tag{font-size:12px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 6px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
+.cbadge{font-size:12px;padding:2px 6px;border-radius:3px;white-space:nowrap;display:inline-block;margin-right:2px;font-weight:600}
 .cb-on{background:rgba(255,180,200,.15);color:#ffb3c6;border:1px solid rgba(255,160,185,.5)}
 .cb-off{background:rgba(255,255,255,.04);color:#2a4060;border:1px solid rgba(255,255,255,.06)}
 .next-badge{font-size:10px;color:#7df4ff;background:rgba(100,230,255,.1);border:1px solid rgba(100,230,255,.3);padding:0 5px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
-.no-data-row td{color:#2a4060;font-size:11px;padding:6px 4px;text-align:center}
+.no-data-row td{color:#2a4060;font-size:13px;padding:6px 5px;text-align:center}
 
 .empty{text-align:center;padding:40px 16px;color:#3a6090;font-size:14px;line-height:2}
 @media(max-width:600px){
@@ -429,29 +429,40 @@ function clearProductAndNext(){
   }
 }
 
-/* ライン No. 入力→前回データ自動ロード（ライン No. が確定した時のみ） */
+/* ライン No. 入力→前回データ自動ロード
+   ラインNoが変わるたびに毎回Firestoreを検索。
+   既存データがあれば読み込み、なければ空欄のまま新規入力モード。
+   これにより「ムラタ→リセット→シミズ」と入力し直した場合、
+   シミズの既存データ（あれば）を正しくロードし、
+   保存時はシミズのドキュメントに書き込む。 */
 let lineTimer=null;
-let lastLoadedLineNo=''; // 最後にロードしたラインNo.
+let prevLineNo=''; // 直前のラインNo（変化検知用）
 
 window.onLineNoInput = function(){
   const lineNo=v('lineNo');
   clearTimeout(lineTimer);
   showBanner('');
-  // 空欄になったらクリア
-  if(!lineNo){ lastLoadedLineNo=''; clearProductAndNext(); return; }
-  // 前回ロードと同じラインNoならスキップ（手動削除後の再入力も正しく動く）
+  if(!lineNo){
+    prevLineNo='';
+    clearProductAndNext();
+    return;
+  }
+  // 同じ値が連続して来た場合（IME確定など）はスキップ
+  if(lineNo===prevLineNo) return;
+  prevLineNo=lineNo;
+  // 入力が変わったら即クリア→500ms後にFirestore検索
+  clearProductAndNext();
   lineTimer=setTimeout(async ()=>{
-    if(lineNo===lastLoadedLineNo) return;
-    lastLoadedLineNo=lineNo;
-    clearProductAndNext(); // まずクリア
     try{
       const snap=await getDoc(doc(db,COL,toDocId(lineNo)));
       if(snap.exists()){
         fillForm(snap.data());
-        showBanner('ライン '+lineNo+' の前回入力内容を読み込みました');
+        showBanner('ライン '+lineNo+' の既存データを読み込みました（上書き更新モード）');
+      } else {
+        showBanner('新規ライン '+lineNo+' として登録します');
       }
     }catch(e){}
-  },400);
+  },500);
 };
 
 function toDocId(lineNo){ return lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_'); }
@@ -460,7 +471,7 @@ window.resetForm = function(){
   setV('lineNo','');
   // updaterはログイン者名を維持
   clearProductAndNext(); showBanner('');
-  lastLoadedLineNo='';
+  prevLineNo='';
   document.getElementById('err-msg').className='err';
 };
 
@@ -590,7 +601,7 @@ function renderPage(pageIdx){
       <div class="vl-body">
         <table class="unified-table">
           <thead>
-            <tr><th style="width:38%">品名</th><th style="width:22%;text-align:center">工程</th><th style="width:40%;text-align:center">中間検査</th></tr>
+            <tr><th style="width:40%">品名</th><th style="width:20%;text-align:center">工程</th><th style="width:40%;text-align:center">中間検査</th></tr>
           </thead>
           <tbody>
             ${prodRows||'<tr class="no-data-row"><td colspan="3">品名未入力</td></tr>'}
