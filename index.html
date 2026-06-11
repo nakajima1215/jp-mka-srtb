@@ -324,7 +324,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -465,7 +465,14 @@ window.onLineNoInput = function(){
   },500);
 };
 
-function toDocId(lineNo){ return lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_'); }
+function toDocId(lineNo){
+  // Firestoreのドキュメントは日本語を含むUnicode文字が有効です
+  // 無効な文字はスラッシュ(/)のみのため、スラッシュだけを置換します
+  let id = lineNo.replace(/\//g, '_');
+  // Firestoreで予約済みの '.' '..' を回避
+  if(id === '.' || id === '..') id = '_' + id;
+  return id;
+}
 
 window.resetForm = function(){
   setV('lineNo','');
@@ -562,7 +569,7 @@ function renderPage(pageIdx){
   const slice=allLines.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
 
   el.innerHTML=slice.map(l=>{
-    const docId=toDocId(l.lineNo);
+    const docId = l._id || toDocId(l.lineNo); // 実際のFirestore IDを使用
     const prods=(l.prods||[]).filter(p=>p.name);
     const nexts=(l.nexts||[]).filter(n=>n.name);
 
@@ -643,6 +650,37 @@ function renderLines(lines){
   renderPage(currentPage);
 }
 
+/* ===== 旧形式ドキュメントID自動マイグレーション =====
+   旧コードでは日本語ライン名が "___" に変換されて保存されていた。
+   ログイン時に一度だけ実行し、IDが正しくないドキュメントを整理する。 */
+async function migrateOldDocIds(){
+  try{
+    const snapshot = await getDocs(query(collection(db,COL)));
+    for(const d of snapshot.docs){
+      const data = d.data();
+      const lineNo = data.lineNo || '';
+      if(!lineNo) continue;
+      const correctId = toDocId(lineNo);
+      if(d.id === correctId) continue; // 正常なIDはスキップ
+
+      // 正しいIDのドキュメントが既に存在するか確認
+      const existingSnap = await getDoc(doc(db,COL,correctId));
+      if(existingSnap.exists()){
+        // 正しいIDのドキュメントが既にある → 古い方だけ削除
+        await deleteDoc(doc(db,COL,d.id));
+        console.log('[Migration] 重複旧ドキュメント削除:', d.id, '→ 保持:', correctId);
+      } else {
+        // 正しいIDのドキュメントが無い → データを正しいIDに移動
+        await setDoc(doc(db,COL,correctId), data);
+        await deleteDoc(doc(db,COL,d.id));
+        console.log('[Migration] ドキュメントID修正:', d.id, '→', correctId);
+      }
+    }
+  }catch(e){
+    console.warn('[Migration] エラー:', e);
+  }
+}
+
 /* ===== Firestore リアルタイムリスナー ===== */
 let unsubscribe=null;
 function startListener(){
@@ -651,7 +689,8 @@ function startListener(){
   unsubscribe=onSnapshot(q,
     (snapshot)=>{
       const lines=[];
-      snapshot.forEach(d=>lines.push(d.data()));
+      // 実際のFirestoreドキュメントIDも保持する（正確な削除のため）
+      snapshot.forEach(d=>lines.push({...d.data(), _id: d.id}));
       renderLines(lines);
       document.getElementById('refreshed-at').textContent=
         'LIVE 最終更新：'+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -733,6 +772,8 @@ onAuthStateChanged(auth,user=>{
     const name=USER_MAP[uid]||uid;
     document.getElementById('updater').value=name;
     document.getElementById('user-email-disp').textContent=uid+' ('+name+')';
+    // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
+    migrateOldDocIds();
     refreshAllDL();
     setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
   }else{
