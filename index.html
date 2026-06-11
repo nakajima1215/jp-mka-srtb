@@ -24,6 +24,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .field label{font-size:12px;color:#888;font-weight:500}
 .field input[type=text]{height:36px;padding:0 10px;border:1px solid #d0d0d0;border-radius:7px;font-size:14px;background:#fafafa;width:100%;transition:all .15s}
 .field input[type=text]:focus{outline:none;border-color:#1D9E75;background:#fff;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.field input[type=text][readonly]{background:#f0f0f0;color:#555;cursor:default}
 .field-xl{flex:3;min-width:140px}
 .field-lg{flex:2;min-width:110px}
 .field-sm{flex:1;min-width:75px}
@@ -74,82 +75,97 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .lg-loading{font-size:13px;color:#6a9fd8;text-align:center;display:none}
 @keyframes lgShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
 
-
 /* ===== 閲覧画面 ===== */
 #pane-view{
   position:fixed;top:0;left:0;width:100vw;height:100vh;
   background:linear-gradient(160deg,#0d2f6e 0%,#1251a3 45%,#0a3d8f 100%);
-  overflow:hidden;z-index:200;
-  display:none;flex-direction:column;
+  overflow:hidden;z-index:200;display:none;flex-direction:column;
 }
 #pane-view.active{display:flex}
-#pane-view::before{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);
-  pointer-events:none;z-index:0;
+#pane-view::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,80,.06) 3px,rgba(0,20,80,.06) 4px);pointer-events:none;z-index:0}
+.view-header-bar{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(5,30,90,.75);border-bottom:1px solid rgba(120,180,255,.35);flex-shrink:0}
+.view-title-block h2{font-size:14px;font-weight:700;color:#aed8ff;letter-spacing:.08em;text-shadow:0 0 16px rgba(160,210,255,.7)}
+.view-title-block .sub{font-size:10px;color:#6a9fd8;margin-top:1px;letter-spacing:.04em}
+.view-ctrl{display:flex;align-items:center;gap:8px}
+.ref-btn{padding:5px 12px;border:1px solid rgba(160,210,255,.45);border-radius:6px;background:rgba(160,210,255,.12);font-size:12px;cursor:pointer;color:#aed8ff;transition:all .15s}
+.ref-btn:hover{background:rgba(160,210,255,.25);color:#cceeff}
+.back-btn{padding:5px 12px;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.06);font-size:12px;cursor:pointer;color:#aaa;transition:all .15s}
+.back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.clock{font-size:22px;font-weight:700;color:#fff;letter-spacing:.12em;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(180,220,255,.9);min-width:90px;text-align:right}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px rgba(61,220,132,.7);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ページインジケーター */
+.page-indicator{display:flex;gap:6px;align-items:center}
+.page-dot{width:8px;height:8px;border-radius:50%;background:rgba(160,210,255,.25);border:1px solid rgba(160,210,255,.4);transition:all .3s;cursor:pointer}
+.page-dot.active{background:#aed8ff;box-shadow:0 0 6px rgba(160,210,255,.6)}
+
+/* グリッド */
+.view-page{position:relative;z-index:1;flex:1;overflow:hidden;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:2px;padding:2px;background:rgba(120,180,255,.15);align-content:start}
+
+/* ラインカード — 文字が映える深めのコントラスト背景 */
+.vline{
+  background:linear-gradient(160deg,rgba(4,20,70,.92) 0%,rgba(6,28,90,.88) 100%);
+  border:1px solid rgba(80,140,220,.4);
+  border-radius:4px;
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(120,180,255,.1);
 }
-.view-header-bar{
-  position:relative;z-index:1;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 20px;
-  background:rgba(5,30,90,.75);
-  border-bottom:1px solid rgba(120,180,255,.35);
+.vl-hd{
+  padding:5px 8px;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;
+  background:linear-gradient(90deg,rgba(10,55,160,.95) 0%,rgba(5,35,130,.9) 100%);
+  border-bottom:2px solid rgba(100,180,255,.5);
   flex-shrink:0;
 }
-.view-title-block h2{font-size:15px;font-weight:700;color:#aed8ff;letter-spacing:.08em;text-shadow:0 0 16px rgba(160,210,255,.7)}
-.view-title-block .sub{font-size:11px;color:#6a9fd8;margin-top:2px;letter-spacing:.04em}
-.view-ctrl{display:flex;align-items:center;gap:10px}
-.ref-btn{padding:6px 14px;border:1px solid rgba(160,210,255,.45);border-radius:6px;background:rgba(160,210,255,.12);font-size:13px;cursor:pointer;color:#aed8ff;transition:all .15s}
-.ref-btn:hover{background:rgba(160,210,255,.25);color:#cceeff}
-.back-btn{padding:6px 14px;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.06);font-size:13px;cursor:pointer;color:#aaa;transition:all .15s}
-.back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
-.clock{font-size:24px;font-weight:700;color:#fff;letter-spacing:.12em;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(180,220,255,.9);min-width:100px;text-align:right}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px rgba(61,220,132,.7);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.view-grid{
-  position:relative;z-index:1;flex:1;overflow-y:auto;overflow-x:hidden;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
-  gap:1px;padding:1px;background:rgba(120,180,255,.2);align-content:start;
+.vl-no{font-size:13px;font-weight:800;color:#fff;letter-spacing:.06em;white-space:nowrap;text-shadow:0 0 10px rgba(180,225,255,.9)}
+.vl-who{font-size:10px;color:#cce8ff;background:rgba(140,200,255,.18);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.vl-when{font-size:10px;color:#6aaee0;margin-left:auto;white-space:nowrap;flex-shrink:0}
+.vl-del-btn{
+  background:rgba(255,80,80,.15);border:1px solid rgba(255,100,100,.35);color:#ff8080;
+  border-radius:4px;padding:1px 7px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:all .15s;line-height:1.6;
 }
-.view-grid::-webkit-scrollbar{width:5px}
-.view-grid::-webkit-scrollbar-track{background:transparent}
-.view-grid::-webkit-scrollbar-thumb{background:rgba(160,210,255,.35);border-radius:3px}
-.vline{background:rgba(15,60,160,.72);display:flex;flex-direction:column;min-height:0}
-.vl-hd{padding:9px 14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;background:linear-gradient(90deg,rgba(10,60,160,.92) 0%,rgba(5,40,130,.85) 100%);border-bottom:1px solid rgba(140,200,255,.35);flex-shrink:0}
-.vl-no{font-size:15px;font-weight:800;color:#fff;letter-spacing:.06em;white-space:nowrap;text-shadow:0 0 14px rgba(180,225,255,.85)}
-.vl-who{font-size:11px;color:#cce8ff;background:rgba(140,200,255,.2);padding:2px 7px;border-radius:4px;white-space:nowrap}
-.vl-when{font-size:11px;color:#6aaee0;margin-left:auto;white-space:nowrap}
-.vl-next-badge{font-size:11px;color:#7df4ff;background:rgba(100,230,255,.1);border:1px solid rgba(100,230,255,.35);border-radius:4px;padding:2px 8px;white-space:nowrap;text-shadow:0 0 8px rgba(100,230,255,.5)}
-.vl-body{padding:0 14px 12px;background:rgba(20,70,180,.35)}
-.vl-section{margin-top:10px}
-.vl-section-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aad8ff;border-bottom:1px solid rgba(160,215,255,.35);padding-bottom:4px;margin-bottom:6px}
-.prod-table{width:100%;border-collapse:collapse;font-size:13px}
-.prod-table th{font-size:10px;color:#aad8ff;font-weight:700;padding:5px 6px;text-align:left;border-bottom:1px solid rgba(160,215,255,.3);background:rgba(30,90,210,.4)}
-.prod-table td{padding:6px 8px;border-bottom:1px solid rgba(140,200,255,.2);vertical-align:middle;color:#dff0ff;background:rgba(25,80,200,.25)}
-.prod-table tr:last-child td{border-bottom:none}
-.prod-table tr:hover td{background:rgba(60,130,255,.3)}
-.prod-table td strong{color:#fff;text-shadow:0 0 8px rgba(180,220,255,.5)}
-.proc-tag{font-size:12px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 7px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;text-shadow:0 0 8px rgba(255,220,50,.4)}
-.cbadge{font-size:11px;padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;margin-right:3px;font-weight:600}
-.cb-on{background:rgba(255,180,200,.15);color:#ffb3c6;border:1px solid rgba(255,160,185,.5);text-shadow:0 0 6px rgba(255,160,185,.4)}
-.cb-off{background:rgba(255,255,255,.04);color:#2a5080;border:1px solid rgba(255,255,255,.07)}
-.next-table{width:100%;border-collapse:collapse;font-size:13px}
-.next-table th{font-size:10px;color:#aad8ff;font-weight:700;padding:5px 6px;text-align:left;border-bottom:1px solid rgba(160,215,255,.3);background:rgba(30,90,210,.4)}
-.next-table td{padding:6px 8px;border-bottom:1px solid rgba(140,200,255,.2);color:#dff0ff;background:rgba(25,80,200,.25)}
-.next-table tr:last-child td{border-bottom:none}
-.next-table td strong{color:#fff;text-shadow:0 0 8px rgba(180,220,255,.5)}
-.empty{text-align:center;padding:48px 16px;color:#3a6090;font-size:14px;line-height:2}
-.no-data{color:#3a6090;font-size:13px;padding:8px 0}
-@media(max-width:480px){
+.vl-del-btn:hover{background:rgba(255,80,80,.35);color:#fff;border-color:rgba(255,120,120,.6)}
+
+/* 統合テーブル（工程＋中間検査＋NEXT） */
+.vl-body{padding:4px 6px 6px;flex:1;overflow:hidden}
+.unified-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.unified-table th{
+  font-size:9px;color:#7ab8e8;font-weight:700;padding:3px 4px;text-align:left;
+  border-bottom:1px solid rgba(160,215,255,.3);background:rgba(30,90,210,.45);
+  white-space:nowrap;overflow:hidden;
+}
+.unified-table td{
+  padding:3px 4px;border-bottom:1px solid rgba(100,160,255,.12);
+  vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.unified-table tr:last-child td{border-bottom:none}
+.unified-table .section-sep td{
+  background:rgba(30,90,210,.3);color:#7ab8e8;font-size:9px;font-weight:700;
+  letter-spacing:.06em;padding:2px 4px;border-bottom:1px solid rgba(160,215,255,.25);
+  border-top:1px solid rgba(160,215,255,.15);
+}
+.td-name{color:#e8f4ff;font-weight:600;width:38%}
+.td-proc{width:22%;text-align:center}
+.td-chk{width:20%;text-align:center}
+.td-next-mark{width:20%;text-align:center}
+.proc-tag{font-size:10px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:0 5px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
+.cbadge{font-size:10px;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;margin-right:2px;font-weight:600}
+.cb-on{background:rgba(255,180,200,.15);color:#ffb3c6;border:1px solid rgba(255,160,185,.5)}
+.cb-off{background:rgba(255,255,255,.04);color:#2a4060;border:1px solid rgba(255,255,255,.06)}
+.next-badge{font-size:10px;color:#7df4ff;background:rgba(100,230,255,.1);border:1px solid rgba(100,230,255,.3);padding:0 5px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
+.no-data-row td{color:#2a4060;font-size:11px;padding:6px 4px;text-align:center}
+
+.empty{text-align:center;padding:40px 16px;color:#3a6090;font-size:14px;line-height:2}
+@media(max-width:600px){
+  .view-page{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,1fr)}
   .next-row{grid-template-columns:1fr}
   .next-row-hd{display:none}
   .field-xl,.field-lg,.field-sm{min-width:0}
-  .view-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-
 
 <!-- ログイン画面 -->
 <div id="login-screen">
@@ -203,9 +219,8 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
           <datalist id="dl-lineNo"></datalist>
         </div>
         <div class="field field-lg">
-          <label>更新者名</label>
-          <input type="text" id="updater" list="dl-updater" placeholder="例：山田" autocomplete="off">
-          <datalist id="dl-updater"></datalist>
+          <label>更新者名（自動）</label>
+          <input type="text" id="updater" placeholder="ログイン者名" autocomplete="off" readonly>
         </div>
       </div>
     </div>
@@ -293,11 +308,12 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
       </div>
       <div class="view-ctrl">
         <div class="live-dot" id="live-dot" style="display:none"></div>
+        <div class="page-indicator" id="page-indicator"></div>
         <button class="back-btn" onclick="switchTab('input')">← 入力画面</button>
         <div class="clock" id="clock">--:--:--</div>
       </div>
     </div>
-    <div class="view-grid" id="view-body">
+    <div class="view-page" id="view-body">
       <div class="empty">読み込み中…</div>
     </div>
   </div>
@@ -306,10 +322,9 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDK (CDN) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -322,24 +337,37 @@ const firebaseConfig = {
   measurementId: "G-FT6RG5MVZL"
 };
 
-const app = initializeApp(firebaseConfig);
-const db   = getFirestore(app);
-const auth = getAuth(app);
-const COL  = "lines";
+const fbApp  = initializeApp(firebaseConfig);
+const db     = getFirestore(fbApp);
+const auth   = getAuth(fbApp);
+const COL    = "lines";
 let currentUser = null;
 
-const MARKS   = ['①','②','③','④','⑤'];
-const LS_HIST = 'seisan_hist_v2';
-const MAX_HIST = 5;
+/* ===== ユーザーID→氏名マップ ===== */
+const USER_MAP = {
+  'a001': '山田',
+  'a002': '北村',
+  'a003': '田中',
+  'a004': '佐藤',
+  'a005': '鈴木',
+  // 必要に応じて追加
+};
 
-/* ===== Firebase 接続ステータス ===== */
+const MARKS    = ['①','②','③','④','⑤'];
+const LS_HIST  = 'seisan_hist_v3';
+const MAX_HIST = 5;
+const PAGE_SIZE = 10; // 1画面に表示するライン数
+let allLines   = [];
+let currentPage = 0;
+let pageTimer  = null;
+
+/* ===== Firebase ステータス ===== */
 function setStatus(type, msg){
   const el = document.getElementById('fb-status');
-  el.className = 'fb-status ' + type;
-  el.textContent = msg;
+  if(el){ el.className='fb-status '+type; el.textContent=msg; }
 }
 
-/* ===== 履歴（ローカル） ===== */
+/* ===== 履歴 ===== */
 function getHist(){ try{ return JSON.parse(localStorage.getItem(LS_HIST)||'{}'); }catch(e){ return {}; } }
 function addHist(fk,val){
   if(!val) return;
@@ -353,7 +381,7 @@ function buildDL(fk,dlId){
   (h[fk]||[]).forEach(v=>{ const o=document.createElement('option'); o.value=v; dl.appendChild(o); });
 }
 const ALL_FIELDS=[
-  ['lineNo','dl-lineNo'],['updater','dl-updater'],
+  ['lineNo','dl-lineNo'],
   ['pn1','dl-pn1'],['ps1','dl-ps1'],['pe1','dl-pe1'],
   ['pn2','dl-pn2'],['ps2','dl-ps2'],['pe2','dl-pe2'],
   ['pn3','dl-pn3'],['ps3','dl-ps3'],['pe3','dl-pe3'],
@@ -378,7 +406,7 @@ function showBanner(msg){
   else{ b.className='loaded-banner'; }
 }
 function fillForm(data){
-  setV('updater',data.updater);
+  // updaterはログイン者名固定なので上書きしない
   const prods=data.prods||[];
   for(let i=0;i<5;i++){
     const p=prods[i]||{};
@@ -401,23 +429,38 @@ function clearProductAndNext(){
   }
 }
 
-/* ライン No. 入力→前回データ自動ロード */
+/* ライン No. 入力→前回データ自動ロード（ライン No. が確定した時のみ） */
 let lineTimer=null;
+let lastLoadedLineNo=''; // 最後にロードしたラインNo.
+
 window.onLineNoInput = function(){
-  const lineNo=v('lineNo'); clearTimeout(lineTimer);
-  if(!lineNo){ showBanner(''); return; }
+  const lineNo=v('lineNo');
+  clearTimeout(lineTimer);
+  showBanner('');
+  // 空欄になったらクリア
+  if(!lineNo){ lastLoadedLineNo=''; clearProductAndNext(); return; }
+  // 前回ロードと同じラインNoならスキップ（手動削除後の再入力も正しく動く）
   lineTimer=setTimeout(async ()=>{
+    if(lineNo===lastLoadedLineNo) return;
+    lastLoadedLineNo=lineNo;
+    clearProductAndNext(); // まずクリア
     try{
-      const snap=await getDoc(doc(db,COL,lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_')));
-      if(snap.exists()){ fillForm(snap.data()); showBanner('ライン '+lineNo+' の前回入力内容を読み込みました'); }
-      else{ clearProductAndNext(); showBanner(''); }
-    }catch(e){ clearProductAndNext(); showBanner(''); }
+      const snap=await getDoc(doc(db,COL,toDocId(lineNo)));
+      if(snap.exists()){
+        fillForm(snap.data());
+        showBanner('ライン '+lineNo+' の前回入力内容を読み込みました');
+      }
+    }catch(e){}
   },400);
 };
 
+function toDocId(lineNo){ return lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_'); }
+
 window.resetForm = function(){
-  setV('lineNo',''); setV('updater','');
+  setV('lineNo','');
+  // updaterはログイン者名を維持
   clearProductAndNext(); showBanner('');
+  lastLoadedLineNo='';
   document.getElementById('err-msg').className='err';
 };
 
@@ -444,11 +487,11 @@ window.saveData = async function(){
   const nexts=[];
   for(let i=1;i<=3;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
 
-  const data={lineNo,updater:v('updater'),prods,nexts,updatedAt:new Date().toISOString()};
-  const docId=lineNo.replace(/[^a-zA-Z0-9\-_]/g,'_');
+  const updaterName = document.getElementById('updater').value || (currentUser?currentUser.email.replace('@factory.local',''):'');
+  const data={lineNo, updater:updaterName, prods, nexts, updatedAt:new Date().toISOString()};
 
   try{
-    await setDoc(doc(db,COL,docId), data);
+    await setDoc(doc(db,COL,toDocId(lineNo)), data);
     showToast('ライン '+lineNo+' を保存しました ✓',true);
     window.resetForm();
   }catch(e){
@@ -458,7 +501,32 @@ window.saveData = async function(){
   btn.disabled=false; btn.textContent='💾 保存・更新';
 };
 
-/* ===== 閲覧（リアルタイム onSnapshot） ===== */
+/* ===== 削除 ===== */
+window.deleteLine = async function(docId, lineNo){
+  if(!confirm('ライン「'+lineNo+'」を削除しますか？')) return;
+  try{
+    await deleteDoc(doc(db,COL,docId));
+    showToast('ライン '+lineNo+' を削除しました',true);
+  }catch(e){
+    showToast('削除エラー：'+e.message,false);
+  }
+};
+
+/* ===== ソート関数（数値昇順→文字列後尾） ===== */
+function sortLines(lines){
+  return [...lines].sort((a,b)=>{
+    const aNo=(a.lineNo||''), bNo=(b.lineNo||'');
+    const aNum=parseInt(aNo,10), bNum=parseInt(bNo,10);
+    const aIsNum=!isNaN(aNum)&&String(aNum)===aNo.trim();
+    const bIsNum=!isNaN(bNum)&&String(bNum)===bNo.trim();
+    if(aIsNum&&bIsNum) return aNum-bNum;
+    if(aIsNum) return -1;
+    if(bIsNum) return 1;
+    return aNo.localeCompare(bNo,'ja',{numeric:true});
+  });
+}
+
+/* ===== 閲覧レンダリング ===== */
 function fmt(iso){
   if(!iso)return'';
   const d=new Date(iso);
@@ -466,78 +534,113 @@ function fmt(iso){
 }
 function procLabel(start,end){
   const s=(start||'').trim(),e=(end||'').trim();
-  if(!s&&!e) return '—';
+  if(!s&&!e) return '';
   if(!e||s===e) return s||e;
   return s+'〜'+e;
 }
 
-function renderLines(lines){
+function renderPage(pageIdx){
   const el=document.getElementById('view-body');
-  if(!lines.length){
-    el.innerHTML='<div class="empty" style="grid-column:1/-1">📋 登録データがありません<br><small>情報入力タブからデータを入力してください</small></div>';
-    return;
+  if(!allLines.length){
+    el.innerHTML='<div class="empty" style="grid-column:1/-1">📋 登録データがありません</div>';
+    renderPageDots(0,0); return;
   }
-  el.innerHTML=lines.map(l=>{
+  const totalPages=Math.ceil(allLines.length/PAGE_SIZE);
+  const pi=((pageIdx%totalPages)+totalPages)%totalPages;
+  currentPage=pi;
+  const slice=allLines.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
+
+  el.innerHTML=slice.map(l=>{
+    const docId=toDocId(l.lineNo);
     const prods=(l.prods||[]).filter(p=>p.name);
     const nexts=(l.nexts||[]).filter(n=>n.name);
-    const prodRows=prods.length?prods.map((p,i)=>{
+
+    // 統合テーブル行：稼働製品
+    const prodRows=prods.map((p,i)=>{
       const proc=procLabel(p.start,p.end);
       return `<tr>
-        <td><strong>${MARKS[i]}</strong> ${p.name}</td>
-        <td>${proc!=='—'?`<span class="proc-tag">${proc}</span>`:'<span style="color:#3a6090">—</span>'}</td>
-        <td>
-          <span class="cbadge ${p.check1?'cb-on':'cb-off'}">1回${p.check1?'✓':'—'}</span>
-          <span class="cbadge ${p.check2?'cb-on':'cb-off'}">2回${p.check2?'✓':'—'}</span>
+        <td class="td-name"><strong>${MARKS[i]}</strong> ${p.name}</td>
+        <td class="td-proc">${proc?`<span class="proc-tag">${proc}</span>`:''}</td>
+        <td class="td-chk">
+          <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1回✓':'1回—'}</span>
+          <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2回✓':'2回—'}</span>
         </td>
       </tr>`;
-    }).join(''):'<tr><td colspan="3" class="no-data">品名未入力</td></tr>';
+    }).join('');
 
-    const prodSection=`
-      <div class="vl-section">
-        <div class="vl-section-title">工程と中間検査</div>
-        <table class="prod-table">
-          <thead><tr><th>品名</th><th>工程</th><th>中間検査</th></tr></thead>
-          <tbody>${prodRows}</tbody>
-        </table>
-      </div>`;
+    // NEXT行
+    const nextRows=nexts.map((n,i)=>{
+      const proc=procLabel(n.start,n.end);
+      return `<tr>
+        <td class="td-name" style="color:#9fe3ff"><strong>${MARKS[i]}</strong> ${n.name}</td>
+        <td class="td-proc">${proc?`<span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4)">${proc}</span>`:''}</td>
+        <td class="td-chk" style="color:#4a8aaa">—</td>
+      </tr>`;
+    }).join('');
 
-    const nextSection=nexts.length?`
-      <div class="vl-section">
-        <div class="vl-section-title">NEXT 生産予定</div>
-        <table class="next-table">
-          <thead><tr><th>品名</th><th>工程</th></tr></thead>
-          <tbody>${nexts.map((n,i)=>{
-            const proc=procLabel(n.start,n.end);
-            return `<tr>
-              <td><strong>${MARKS[i]}</strong> ${n.name}</td>
-              <td>${proc!=='—'?`<span class="proc-tag">${proc}</span>`:'<span style="color:#3a6090">—</span>'}</td>
-            </tr>`;
-          }).join('')}</tbody>
-        </table>
-      </div>`:'';
+    const hasNext=nexts.length>0;
 
     return `<div class="vline">
       <div class="vl-hd">
-        <span class="vl-no">🏭 ライン ${l.lineNo}</span>
+        <span class="vl-no">🏭 ${l.lineNo}</span>
         ${l.updater?`<span class="vl-who">${l.updater}</span>`:''}
         ${l.updatedAt?`<span class="vl-when">${fmt(l.updatedAt)}</span>`:''}
-        ${nexts.length?`<span class="vl-next-badge">NEXT ${nexts.length}件</span>`:''}
+        <button class="vl-del-btn" onclick="deleteLine('${docId}','${l.lineNo}')">🗑 削除</button>
       </div>
-      <div class="vl-body">${prodSection}${nextSection}</div>
+      <div class="vl-body">
+        <table class="unified-table">
+          <thead>
+            <tr><th style="width:38%">品名</th><th style="width:22%;text-align:center">工程</th><th style="width:40%;text-align:center">中間検査</th></tr>
+          </thead>
+          <tbody>
+            ${prodRows||'<tr class="no-data-row"><td colspan="3">品名未入力</td></tr>'}
+            ${hasNext?`<tr class="section-sep"><td colspan="3">▼ NEXT 生産予定</td></tr>${nextRows}`:''}
+          </tbody>
+        </table>
+      </div>
     </div>`;
   }).join('');
+
+  renderPageDots(pi,totalPages);
 }
 
-/* Firestore リアルタイムリスナー */
-let unsubscribe = null;
+function renderPageDots(pi,total){
+  const el=document.getElementById('page-indicator');
+  if(!el) return;
+  el.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='page-dot'+(i===pi?' active':'');
+    d.onclick=(()=>{const idx=i; return ()=>{ stopPageTimer(); currentPage=idx; renderPage(idx); startPageTimer(); };})();
+    el.appendChild(d);
+  }
+}
+
+function startPageTimer(){
+  stopPageTimer();
+  pageTimer=setInterval(()=>{
+    const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
+    renderPage((currentPage+1)%total);
+  },30000);
+}
+function stopPageTimer(){
+  if(pageTimer){ clearInterval(pageTimer); pageTimer=null; }
+}
+
+function renderLines(lines){
+  allLines=sortLines(lines);
+  renderPage(currentPage);
+}
+
+/* ===== Firestore リアルタイムリスナー ===== */
+let unsubscribe=null;
 function startListener(){
   if(unsubscribe) return;
-  const q = query(collection(db,COL));
-  unsubscribe = onSnapshot(q,
+  const q=query(collection(db,COL));
+  unsubscribe=onSnapshot(q,
     (snapshot)=>{
-      const lines = [];
+      const lines=[];
       snapshot.forEach(d=>lines.push(d.data()));
-      lines.sort((a,b)=>(a.lineNo||'').localeCompare(b.lineNo||'','ja'));
       renderLines(lines);
       document.getElementById('refreshed-at').textContent=
         'LIVE 最終更新：'+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -554,6 +657,7 @@ function startListener(){
 function stopListener(){
   if(unsubscribe){ unsubscribe(); unsubscribe=null; }
   document.getElementById('live-dot').style.display='none';
+  stopPageTimer();
 }
 
 /* ===== 時計 ===== */
@@ -564,35 +668,34 @@ function updateClock(){
 setInterval(updateClock,1000);
 
 /* ===== タブ切替 ===== */
-window.switchTab = function(tab){
+window.switchTab=function(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   const btn=document.querySelector(`.tab[onclick="switchTab('${tab}')"]`);
   if(btn) btn.classList.add('active');
   document.getElementById('pane-'+tab).classList.add('active');
-  if(tab==='view'){ startListener(); updateClock(); }
+  if(tab==='view'){ startListener(); updateClock(); startPageTimer(); }
   else{ stopListener(); }
 };
 
-/* ===== ログイン・ログアウト ===== */
-window.doLogin = async function(){
-  const rawId = document.getElementById('lg-email').value.trim();
-  const pass  = document.getElementById('lg-pass').value;
-  const errEl = document.getElementById('lg-err');
-  const btn   = document.getElementById('lg-btn');
-  const loading = document.getElementById('lg-loading');
-  errEl.textContent = '';
+/* ===== ログイン / ログアウト ===== */
+window.doLogin=async function(){
+  const rawId=document.getElementById('lg-email').value.trim();
+  const pass=document.getElementById('lg-pass').value;
+  const errEl=document.getElementById('lg-err');
+  const btn=document.getElementById('lg-btn');
+  const loading=document.getElementById('lg-loading');
+  errEl.textContent='';
   if(!rawId||!pass){ errEl.textContent='IDとパスワードを入力してください'; return; }
-  // @が含まれていない場合は @factory.local を補完
-  const email = rawId.includes('@') ? rawId : rawId + '@factory.local';
+  const email=rawId.includes('@')?rawId:rawId+'@factory.local';
   btn.disabled=true; loading.style.display='block';
   try{
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e){
+    await signInWithEmailAndPassword(auth,email,pass);
+  }catch(e){
     let msg='ログインに失敗しました';
     if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='IDまたはパスワードが正しくありません';
     else if(e.code==='auth/invalid-email') msg='IDの形式が正しくありません';
-    else if(e.code==='auth/too-many-requests') msg='ログイン試行が多すぎます。しばらく待ってから再試行してください';
+    else if(e.code==='auth/too-many-requests') msg='ログイン試行が多すぎます。しばらく待ってください';
     errEl.textContent=msg;
     document.querySelector('.lg-box').style.animation='lgShake .4s ease';
     setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
@@ -600,39 +703,40 @@ window.doLogin = async function(){
   btn.disabled=false; loading.style.display='none';
 };
 
-window.doLogout = async function(){
+window.doLogout=async function(){
   stopListener();
   await signOut(auth);
 };
 
-// Enterキーでログイン
-document.getElementById('lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
-document.getElementById('lg-email').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lg-pass').focus(); });
+document.getElementById('lg-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') window.doLogin(); });
+document.getElementById('lg-email').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('lg-pass').focus(); });
 
 /* ===== 認証状態の監視 ===== */
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth,user=>{
   if(user){
-    currentUser = user;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'block';
-    document.getElementById('user-email-disp').textContent = user.email.replace('@factory.local','');
+    currentUser=user;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    // ログインIDから氏名を取得して更新者名に自動セット
+    const uid=user.email.replace('@factory.local','');
+    const name=USER_MAP[uid]||uid;
+    document.getElementById('updater').value=name;
+    document.getElementById('user-email-disp').textContent=uid+' ('+name+')';
     refreshAllDL();
     setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
-  } else {
-    currentUser = null;
+  }else{
+    currentUser=null;
     stopListener();
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('main-app').style.display = 'none';
-    // 入力画面に戻す
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('main-app').style.display='none';
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-    const inputTab = document.querySelector(".tab[onclick=\"switchTab('input')\"]");
+    const inputTab=document.querySelector(".tab[onclick=\"switchTab('input')\"]");
     if(inputTab) inputTab.classList.add('active');
-    const inputPane = document.getElementById('pane-input');
+    const inputPane=document.getElementById('pane-input');
     if(inputPane) inputPane.classList.add('active');
   }
 });
-
 </script>
 </body>
 </html>
