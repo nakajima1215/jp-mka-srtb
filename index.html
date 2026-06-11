@@ -344,15 +344,21 @@ const fbApp  = initializeApp(firebaseConfig);
 const db     = getFirestore(fbApp);
 const auth   = getAuth(fbApp);
 const COL    = "lines";
+const COL_USERS = "users"; // ユーザー情報コレクション
 let currentUser = null;
 
-/* ===== ユーザーID→氏名マップ ===== */
+/* ===== ユーザーID→氏名マップ（Firestoreが読めない場合のフォールバック） =====
+   Firestoreのusersコレクションから自動取得しますが、
+   セキュリティルール等で取得できない場合はこちらを参照します。
+   新しいユーザーはFirestoreのusersコレクションに追加してください。 */
 const USER_MAP = {
   'a001': '山田',
   'a002': '北村',
   'a003': '田中',
   'a004': '佐藤',
   'a005': '鈴木',
+  'b001': '',   // 必要に応じて名前を入力
+  'b002': '北村',
   // 必要に応じて追加
 };
 
@@ -787,11 +793,20 @@ onAuthStateChanged(auth,user=>{
     currentUser=user;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    // ログインIDから氏名を取得して更新者名に自動セット
     const uid=user.email.replace('@factory.local','');
-    const name=USER_MAP[uid]||uid;
-    document.getElementById('updater').value=name;
-    document.getElementById('user-email-disp').textContent=uid+' ('+name+')';
+    // まずUSER_MAPのフォールバック名を即時セット
+    const fallback=USER_MAP[uid]||uid;
+    document.getElementById('updater').value=fallback;
+    document.getElementById('user-email-disp').textContent=uid+' ('+fallback+')';
+    // Firestoreのusersコレクションから正式な名前を取得して上書き
+    getDoc(doc(db,COL_USERS,uid)).then(snap=>{
+      const name=snap.exists()?(snap.data().worker||fallback):fallback;
+      document.getElementById('updater').value=name;
+      document.getElementById('user-email-disp').textContent=uid+' ('+name+')';
+    }).catch(e=>{
+      // 取得失敗（セキュリティルール等）→ フォールバック名を使用
+      console.warn('[ユーザー名取得失敗] Firestoreルールを確認してください:', e.code);
+    });
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
