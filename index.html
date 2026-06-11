@@ -155,6 +155,9 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .cb-off{background:rgba(255,255,255,.04);color:#2a4060;border:1px solid rgba(255,255,255,.06)}
 .next-badge{font-size:10px;color:#7df4ff;background:rgba(100,230,255,.1);border:1px solid rgba(100,230,255,.3);padding:0 5px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
 .no-data-row td{color:#2a4060;font-size:13px;padding:6px 5px;text-align:center}
+/* 未入力スロットのプレースホルダー行 */
+.placeholder-row td{opacity:.18;font-size:12px;pointer-events:none}
+.placeholder-row .td-name{color:#7ab8e8;font-style:normal}
 
 .empty{text-align:center;padding:40px 16px;color:#3a6090;font-size:14px;line-height:2}
 @media(max-width:600px){
@@ -570,33 +573,49 @@ function renderPage(pageIdx){
 
   el.innerHTML=slice.map(l=>{
     const docId = l._id || toDocId(l.lineNo); // 実際のFirestore IDを使用
-    const prods=(l.prods||[]).filter(p=>p.name);
-    const nexts=(l.nexts||[]).filter(n=>n.name);
+    const allProds = l.prods || [];
+    const allNexts = l.nexts || [];
 
-    // 統合テーブル行：稼働製品
-    const prodRows=prods.map((p,i)=>{
-      const proc=procLabel(p.start,p.end);
-      return `<tr>
-        <td class="td-name"><strong>${MARKS[i]}</strong> ${p.name}</td>
-        <td class="td-proc">${proc?`<span class="proc-tag">${proc}</span>`:''}</td>
-        <td class="td-chk">
-          <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1回✓':'1回—'}</span>
-          <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2回✓':'2回—'}</span>
-        </td>
-      </tr>`;
+    // 稼働製品行：①〜⑤ 全スロット表示（未入力はプレースホルダー）
+    const prodRows = MARKS.map((mark, i) => {
+      const p = allProds[i] || {};
+      if(p.name){
+        const proc = procLabel(p.start, p.end);
+        return `<tr>
+          <td class="td-name"><strong>${mark}</strong> ${p.name}</td>
+          <td class="td-proc">${proc?`<span class="proc-tag">${proc}</span>`:''}</td>
+          <td class="td-chk">
+            <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1回✓':'1回—'}</span>
+            <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2回✓':'2回—'}</span>
+          </td>
+        </tr>`;
+      } else {
+        return `<tr class="placeholder-row">
+          <td class="td-name"><strong>${mark}</strong> —</td>
+          <td class="td-proc"></td>
+          <td class="td-chk">— —</td>
+        </tr>`;
+      }
     }).join('');
 
-    // NEXT行
-    const nextRows=nexts.map((n,i)=>{
-      const proc=procLabel(n.start,n.end);
-      return `<tr>
-        <td class="td-name" style="color:#9fe3ff"><strong>${MARKS[i]}</strong> ${n.name}</td>
-        <td class="td-proc">${proc?`<span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4)">${proc}</span>`:''}</td>
-        <td class="td-chk" style="color:#4a8aaa">—</td>
-      </tr>`;
+    // NEXT行：①〜③ 全スロット表示（未入力はプレースホルダー）
+    const nextRows = [0,1,2].map(i => {
+      const n = allNexts[i] || {};
+      if(n.name){
+        const proc = procLabel(n.start, n.end);
+        return `<tr>
+          <td class="td-name" style="color:#9fe3ff"><strong>${MARKS[i]}</strong> ${n.name}</td>
+          <td class="td-proc">${proc?`<span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4)">${proc}</span>`:''}</td>
+          <td class="td-chk" style="color:#4a8aaa">—</td>
+        </tr>`;
+      } else {
+        return `<tr class="placeholder-row">
+          <td class="td-name"><strong>${MARKS[i]}</strong> —</td>
+          <td class="td-proc"></td>
+          <td class="td-chk"></td>
+        </tr>`;
+      }
     }).join('');
-
-    const hasNext=nexts.length>0;
 
     return `<div class="vline">
       <div class="vl-hd">
@@ -611,8 +630,9 @@ function renderPage(pageIdx){
             <tr><th style="width:40%">品名</th><th style="width:20%;text-align:center">工程</th><th style="width:40%;text-align:center">中間検査</th></tr>
           </thead>
           <tbody>
-            ${prodRows||'<tr class="no-data-row"><td colspan="3">品名未入力</td></tr>'}
-            ${hasNext?`<tr class="section-sep"><td colspan="3">▼ NEXT 生産予定</td></tr>${nextRows}`:''}
+            ${prodRows}
+            <tr class="section-sep"><td colspan="3">▼ NEXT 生産予定</td></tr>
+            ${nextRows}
           </tbody>
         </table>
       </div>
