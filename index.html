@@ -139,7 +139,10 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .prow{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 6px;border-bottom:1px solid rgba(100,160,255,.12);min-height:0;overflow:hidden}
 .prow:last-child{border-bottom:none}
 .prow-name{font-size:14px;color:#e8f4ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.prow-sub{display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:nowrap}
+.prow-sub{display:flex;align-items:flex-start;gap:10px;margin-top:2px;flex-wrap:nowrap}
+.prow-sub-group{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.prow-sub-label{font-size:10px;color:#6a9fd8;font-weight:600;letter-spacing:.04em;line-height:1}
+.prow-sub-badges{display:flex;gap:3px}
 .prow-empty .prow-name{opacity:.2;font-size:13px}
 .proc-empty{color:#2a4060;font-size:12px}
 .proc-tag{font-size:12px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 6px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600}
@@ -584,9 +587,17 @@ function renderPage(pageIdx){
         return `<div class="prow">
           <div class="prow-name"><strong>${mark}</strong> ${p.name}</div>
           <div class="prow-sub">
-            ${proc?`<span class="proc-tag">${proc}</span>`:'<span class="proc-empty">—</span>'}
-            <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1回目✓':'1回目'}</span>
-            <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2回目✓':'2回目'}</span>
+            <div class="prow-sub-group">
+              <div class="prow-sub-label">工程</div>
+              ${proc?`<span class="proc-tag">${proc}</span>`:'<span class="proc-empty">—</span>'}
+            </div>
+            <div class="prow-sub-group">
+              <div class="prow-sub-label">中間検査</div>
+              <div class="prow-sub-badges">
+                <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1回目✓':'1回目'}</span>
+                <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2回目✓':'2回目'}</span>
+              </div>
+            </div>
           </div>
         </div>`;
       } else {
