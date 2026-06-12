@@ -517,7 +517,8 @@ window.saveData = async function(){
   try{
     await setDoc(doc(db,COL,toDocId(lineNo)), data);
     showToast('ライン '+lineNo+' を保存しました ✓',true);
-    window.resetForm();
+    showBanner('ライン '+lineNo+' を保存しました（上書き更新モード継続中）');
+    prevLineNo=lineNo;
   }catch(e){
     showToast('保存エラー：'+(e.message||String(e)),false);
     showErr('Firebase保存エラー：'+(e.message||String(e)));
@@ -635,9 +636,6 @@ function renderPage(pageIdx){
       </div>
       <div class="vl-body">
         <div class="vl-prod-wrap">
-          <div class="prow-hd">
-            <span>品名</span><span>工程 / 中間検査</span>
-          </div>
           <div class="prows-body">${prodRows}</div>
         </div>
         <div class="vl-next-wrap">
