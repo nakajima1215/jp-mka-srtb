@@ -424,6 +424,7 @@ const USER_MAP = {
   'a005': '鈴木',
   'b001': '林',
   'b002': '北村',
+  'b003': '津田',
   // 必要に応じて追加
 };
 
@@ -1303,13 +1304,15 @@ onAuthStateChanged(auth,user=>{
     document.getElementById('updater').value=fallback;
     document.getElementById('user-email-disp').textContent=fallback;
     // Firestoreのusersコレクションから正式な名前を取得して上書き（常に優先）
+    console.log('[ユーザー取得] uid:', uid, '/ Firestoreパス:', COL_USERS+'/'+uid);
     getDoc(doc(db,COL_USERS,uid)).then(snap=>{
+      console.log('[ユーザー取得] exists:', snap.exists(), '/ data:', snap.exists()?JSON.stringify(snap.data()):'なし');
       const name=snap.exists()&&snap.data().worker ? snap.data().worker : fallback;
+      console.log('[ユーザー取得] 表示名:', name);
       document.getElementById('updater').value=name;
       document.getElementById('user-email-disp').textContent=name;
     }).catch(e=>{
-      // 取得失敗（セキュリティルール等）→ フォールバック名を使用
-      console.warn('[ユーザー名取得失敗] Firestoreルールを確認してください:', e.code);
+      console.warn('[ユーザー名取得失敗] uid:', uid, 'code:', e.code, 'message:', e.message);
     });
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
