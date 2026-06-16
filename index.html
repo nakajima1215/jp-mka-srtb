@@ -141,7 +141,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   background:linear-gradient(90deg,rgba(4,20,70,.92) 0%,rgba(6,28,90,.88) 100%);
   border:1px solid rgba(255,255,255,.5);
   border-radius:4px;
-  display:flex;align-items:stretch;overflow:hidden;flex:1;
+  display:flex;align-items:stretch;overflow:hidden;flex:1;min-height:0;
   box-shadow:inset 0 1px 0 rgba(120,180,255,.1);
 }
 .vl-hd{
@@ -161,6 +161,14 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   transition:all .15s;line-height:1.6;position:absolute;top:8px;right:8px;
 }
 .vl-del-btn:hover{background:rgba(255,80,80,.35);color:#fff;border-color:rgba(255,120,120,.6)}
+.vl-card-del-btn{
+  display:none;
+  background:rgba(255,60,60,.25);border:1px solid rgba(255,100,100,.5);color:#ff8080;
+  border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;white-space:nowrap;
+  transition:all .15s;font-weight:700;margin-top:6px;width:100%;
+}
+.vl-card-del-btn:hover{background:rgba(255,60,60,.55);color:#fff;border-color:rgba(255,120,120,.8)}
+.edit-mode-active .vl-card-del-btn{display:block}
 
 /* 統合レイアウト：横並び行 */
 .vl-body{padding:2px 8px;flex:1;display:flex;align-items:stretch;gap:4px;min-height:0;overflow:hidden}
@@ -1065,11 +1073,12 @@ function renderPage(pageIdx){
   const pi=((pageIdx%totalPages)+totalPages)%totalPages;
   currentPage=pi;
   const slice=allLines.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
+  const lineCount=slice.length;
 
   // ヘッダー行（列ラベル）
   const headerRow = `<div class="prow-header">
     <div class="prow-header-col" style="width:288px;flex-shrink:0">ライン</div>
-    <div class="prow-header-col" style="flex:30">品名</div>
+    <div class="prow-header-col" style="flex:30">稼働中製品</div>
     <div class="prow-header-col" style="flex:8">工程</div>
     <div class="prow-header-col" style="flex:8;padding-left:0">中間検査</div>
     <div class="prow-header-col" style="flex:31;display:flex;flex-direction:row;align-items:center;padding:0;gap:0;overflow:hidden">
@@ -1126,6 +1135,7 @@ function renderPage(pageIdx){
       <div class="vl-hd">
         <span class="vl-no" title="クリックして編集" style="cursor:pointer" onclick="inlineEditLineNo('${docId}','${l.lineNo}',this)">${/^\d+$/.test(l.lineNo) ? l.lineNo + 'L' : l.lineNo}</span>
         ${l.updater?`<span class="vl-who">${l.updater}</span>`:''}
+        <button class="vl-card-del-btn" onclick="editDeleteLine('${docId}','${l.lineNo}')">🗑 削除</button>
       </div>
       <div class="vl-body">
         <div class="vl-prod-wrap">
@@ -1136,6 +1146,11 @@ function renderPage(pageIdx){
   }).join('');
 
   renderPageDots(pi,totalPages);
+  // ライン数が少ない場合にカードが引き伸びないよう max-height を設定
+  const maxH = Math.floor(100/PAGE_SIZE);
+  document.querySelectorAll('#view-body .vline').forEach(v=>{
+    v.style.maxHeight = maxH+'%';
+  });
   renderFloorMap();
 }
 
