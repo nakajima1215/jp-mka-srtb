@@ -366,7 +366,19 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
       </div>
       <div class="view-ctrl">
         <div class="live-dot" id="live-dot" style="display:none"></div>
-        <span style="font-size:11px;color:#6a9fd8;letter-spacing:.04em;white-space:nowrap">4ライン表示</span>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(160,210,255,.1);border:1px solid rgba(160,210,255,.3);border-radius:7px;padding:3px 8px;">
+          <span style="font-size:11px;color:#6a9fd8;letter-spacing:.04em;white-space:nowrap">表示ライン数</span>
+          <select id="page-size-select" style="background:rgba(0,20,60,.8);border:1px solid rgba(160,210,255,.4);border-radius:5px;color:#aed8ff;font-size:13px;font-weight:700;padding:2px 6px;cursor:pointer;outline:none;" onchange="changePageSize(this.value)">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
+            <option value="10">10</option>
+            <option value="9999">全て</option>
+          </select>
+        </div>
         <div class="page-indicator" id="page-indicator"></div>
         <button class="back-btn" onclick="switchTab('input')">← 入力画面</button>
         <div class="clock" id="clock">--:--:--</div>
@@ -440,7 +452,7 @@ const USER_MAP = {
 const MARKS    = ['①','②','③','④','⑤'];
 const LS_HIST  = 'seisan_hist_v3';
 const MAX_HIST = 5;
-const PAGE_SIZE = 4; // 1画面に表示するライン数
+let PAGE_SIZE = 4; // 1画面に表示するライン数（セレクターで変更可能）
 let allLines   = [];
 let currentPage = 0;
 let pageTimer  = null;
@@ -1146,12 +1158,50 @@ function renderPage(pageIdx){
   }).join('');
 
   renderPageDots(pi,totalPages);
-  // ライン数が少ない場合にカードが引き伸びないよう max-height を設定
-  const maxH = Math.floor(100/PAGE_SIZE);
-  document.querySelectorAll('#view-body .vline').forEach(v=>{
-    v.style.maxHeight = maxH+'%';
-  });
+  // 全ライン表示モードはmax-height解除・スクロール許可、それ以外は均等分割
+  const isAll = PAGE_SIZE >= 9999;
+  const viewPage = document.getElementById('view-body');
+  if(isAll){
+    document.querySelectorAll('#view-body .vline').forEach(v=>{
+      v.style.maxHeight = '';
+      v.style.flex = '0 0 auto';
+    });
+    viewPage.style.overflowY = 'auto';
+    viewPage.style.flexWrap = 'nowrap';
+  } else {
+    const maxH = Math.floor(100/PAGE_SIZE);
+    document.querySelectorAll('#view-body .vline').forEach(v=>{
+      v.style.maxHeight = maxH+'%';
+      v.style.flex = '1';
+    });
+    viewPage.style.overflowY = 'hidden';
+    viewPage.style.flexWrap = 'nowrap';
+  }
+  fitPnameTexts();
   renderFloorMap();
+}
+
+/* ===== 品名テキスト自動フィット ===== */
+function fitPnameTexts(){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('#view-body .prow-col-name').forEach(col=>{
+      const span = col.querySelector('.pname-text');
+      if(!span) return;
+      const strong = col.querySelector('strong');
+      const strongW = strong ? strong.offsetWidth + 8 : 0;
+      const availW = col.offsetWidth - strongW - 20;
+      if(availW <= 0) return;
+      let fs = parseFloat(span.style.fontSize) || 16;
+      span.style.fontSize = fs + 'px';
+      span.style.whiteSpace = 'nowrap';
+      let tries = 0;
+      while(span.scrollWidth > availW && fs > 8 && tries < 30){
+        fs = Math.max(8, fs - 1);
+        span.style.fontSize = fs + 'px';
+        tries++;
+      }
+    });
+  });
 }
 
 function renderPageDots(pi,total){
@@ -1176,6 +1226,16 @@ function startPageTimer(){
 function stopPageTimer(){
   if(pageTimer){ clearInterval(pageTimer); pageTimer=null; }
 }
+
+/* ===== ページサイズ変更 ===== */
+window.changePageSize = function(val){
+  PAGE_SIZE = parseInt(val, 10);
+  currentPage = 0;
+  renderPage(0);
+  stopPageTimer();
+  // 全ライン表示の場合はページ送りしない
+  if(PAGE_SIZE < 9999) startPageTimer();
+};
 
 function renderLines(lines){
   allLines=sortLines(lines);
@@ -1271,8 +1331,8 @@ window.switchTab=function(tab){
   const btn=document.querySelector(`.tab[onclick="switchTab('${tab}')"]`);
   if(btn) btn.classList.add('active');
   document.getElementById('pane-'+tab).classList.add('active');
-  if(tab==='view'){ startListener(); updateClock(); startPageTimer(); }
-  else{ stopListener(); }
+  if(tab==='view'){ startListener(); updateClock(); startPageTimer(); window.addEventListener('resize', fitPnameTexts); }
+  else{ stopListener(); window.removeEventListener('resize', fitPnameTexts); }
 };
 
 /* ===== ログイン / ログアウト ===== */
