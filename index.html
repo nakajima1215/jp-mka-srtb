@@ -435,7 +435,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocFromServer, getDocs, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -1408,7 +1408,7 @@ onAuthStateChanged(auth,user=>{
     // Firestoreのusers/{employeeId}からworkerを取得して表示
     if(employeeId){
       console.log('[worker取得] 開始 employeeId:', employeeId, 'collection:', COL_USERS);
-      getDoc(doc(db,COL_USERS,employeeId)).then(snap=>{
+      getDocFromServer(doc(db,COL_USERS,employeeId)).then(snap=>{
         const rawData = snap.data();
         console.log('[worker取得] snap.exists():', snap.exists());
         console.log('[worker取得] フィールド一覧:', rawData ? Object.keys(rawData) : 'null');
