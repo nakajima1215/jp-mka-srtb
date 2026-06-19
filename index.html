@@ -253,10 +253,10 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 <div id="login-screen">
   <div class="lg-box">
     <div class="lg-title">JP-M課<br>生産リアルタイムボード</div>
-    <div class="lg-sub">IDとパスワードでログイン</div>
+    <div class="lg-sub">社員番号とパスワードでログイン</div>
     <div class="lg-field">
-      <label>ID</label>
-      <input type="text" id="lg-email" placeholder="例：a001" autocomplete="username" inputmode="text">
+      <label>社員番号</label>
+      <input type="text" id="lg-email" placeholder="例：273" autocomplete="username" inputmode="numeric">
     </div>
     <div class="lg-field">
       <label>パスワード</label>
@@ -813,7 +813,7 @@ window.saveData = async function(){
   const nexts=[];
   for(let i=1;i<=3;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
 
-  const updaterName = document.getElementById('updater').value || (currentUser?currentUser.email.replace('@factory.local',''):'');
+  const updaterName = document.getElementById('updater').value || '';
   const data={lineNo, updater:updaterName, prods, nexts, updatedAt:new Date().toISOString()};
 
   try{
@@ -1360,22 +1360,24 @@ window.switchTab=function(tab){
 
 /* ===== ログイン / ログアウト ===== */
 window.doLogin=async function(){
-  const rawId=document.getElementById('lg-email').value.trim();
+  const employeeId=document.getElementById('lg-email').value.trim();
   const pass=document.getElementById('lg-pass').value;
   const errEl=document.getElementById('lg-err');
   const btn=document.getElementById('lg-btn');
   const loading=document.getElementById('lg-loading');
   errEl.textContent='';
-  if(!rawId||!pass){ errEl.textContent='IDとパスワードを入力してください'; return; }
-  const email=rawId.includes('@')?rawId:rawId+'@factory.local';
+  if(!employeeId||!pass){ errEl.textContent='社員番号とパスワードを入力してください'; return; }
   btn.disabled=true; loading.style.display='block';
   try{
+    // emailを社員番号から直接構成（Firestoreへの事前アクセス不要）
+    const email=`${employeeId}@factory.local`;
     await signInWithEmailAndPassword(auth,email,pass);
+    // ログイン成功 → onAuthStateChangedがworkerを表示
   }catch(e){
     let msg='ログインに失敗しました';
-    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='IDまたはパスワードが正しくありません';
-    else if(e.code==='auth/invalid-email') msg='IDの形式が正しくありません';
+    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='パスワードが正しくありません';
     else if(e.code==='auth/too-many-requests') msg='ログイン試行が多すぎます。しばらく待ってください';
+    else if(e.code==='auth/user-not-found') msg='社員番号が存在しません';
     errEl.textContent=msg;
     document.querySelector('.lg-box').style.animation='lgShake .4s ease';
     setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
@@ -1397,21 +1399,22 @@ onAuthStateChanged(auth,user=>{
     currentUser=user;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    const uid=user.email.replace('@factory.local','');
-    // まずUSER_MAPのフォールバック名を即時セット（USER_MAPにない場合はuidをそのまま使用）
-    const fallback=USER_MAP[uid]||uid;
-    document.getElementById('updater').value=fallback;
-    document.getElementById('user-email-disp').textContent=fallback;
-    // Firestoreのusersコレクションから正式な名前を取得して上書き（常に優先）
-    const capturedUid=uid;
-    const capturedFallback=fallback;
-    getDoc(doc(db,COL_USERS,capturedUid)).then(snap=>{
-      const name=snap.exists()&&snap.data().worker ? snap.data().worker : capturedFallback;
-      document.getElementById('updater').value=name;
-      document.getElementById('user-email-disp').textContent=name;
-    }).catch(e=>{
-      console.warn('[ユーザー名取得失敗] uid:', capturedUid, 'code:', e.code, 'message:', e.message);
-    });
+    // user.emailから社員番号を抽出（例: "260@factory.local" → "260"）
+    // ページリロード時も確実に取得できる
+    const employeeId=user.email ? user.email.split('@')[0] : '';
+    // 暫定表示：社員番号をそのまま表示（Firestore取得完了まで）
+    document.getElementById('updater').value=employeeId;
+    document.getElementById('user-email-disp').textContent=employeeId;
+    // Firestoreのusers/{employeeId}からworkerを取得して表示
+    if(employeeId){
+      getDoc(doc(db,COL_USERS,employeeId)).then(snap=>{
+        const worker=snap.exists()&&snap.data().worker ? snap.data().worker : employeeId;
+        document.getElementById('updater').value=worker;
+        document.getElementById('user-email-disp').textContent=worker;
+      }).catch(e=>{
+        console.warn('[worker取得失敗] employeeId:', employeeId, e.message);
+      });
+    }
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
