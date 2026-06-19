@@ -1407,12 +1407,19 @@ onAuthStateChanged(auth,user=>{
     document.getElementById('user-email-disp').textContent=employeeId;
     // Firestoreのusers/{employeeId}からworkerを取得して表示
     if(employeeId){
+      console.log('[worker取得] 開始 employeeId:', employeeId, 'collection:', COL_USERS);
       getDoc(doc(db,COL_USERS,employeeId)).then(snap=>{
-        const worker=snap.exists()&&snap.data().worker ? snap.data().worker : employeeId;
+        const rawData = snap.data();
+        console.log('[worker取得] snap.exists():', snap.exists());
+        console.log('[worker取得] フィールド一覧:', rawData ? Object.keys(rawData) : 'null');
+        console.log('[worker取得] 全データ:', JSON.stringify(rawData));
+        const worker=snap.exists()&&rawData&&rawData.worker ? rawData.worker : employeeId;
+        console.log('[worker取得] 表示名:', worker);
         document.getElementById('updater').value=worker;
         document.getElementById('user-email-disp').textContent=worker;
       }).catch(e=>{
-        console.warn('[worker取得失敗] employeeId:', employeeId, e.message);
+        console.error('[worker取得失敗] code:', e.code, 'message:', e.message);
+        setStatus('fb-err', '⚠️ worker取得失敗: ' + (e.code||e.message));
       });
     }
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
