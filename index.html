@@ -5,7 +5,7 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JP-M課 生産リアルタイムボード</title>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -226,12 +226,192 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .prow-header{display:flex;padding:4px 8px 4px 0;margin-bottom:2px;}
 .prow-header-col{font-size:15px;font-weight:700;color:#ffffff;letter-spacing:.06em;padding:2px 10px;text-transform:uppercase}
 .empty{text-align:center;padding:40px 16px;color:#3a6090;font-size:14px;line-height:2}
-@media(max-width:600px){
-  .view-page{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,1fr)}
+
+/* ============================================================
+   スマホ対応レスポンシブ（～767px）
+   PC/タブレットのデザインは一切変更しない
+   ============================================================ */
+@media(max-width:767px){
+
+  /* --- 入力フォーム --- */
+  .field-xl,.field-lg,.field-sm{min-width:0}
   .next-row{grid-template-columns:1fr}
   .next-row-hd{display:none}
-  .field-xl,.field-lg,.field-sm{min-width:0}
+
+  /* --- 閲覧ヘッダーバー --- */
+  .view-header-bar{
+    flex-wrap:wrap;
+    gap:6px;
+    padding:6px 10px;
+  }
+  .view-title-block h2{font-size:13px}
+  .view-title-block .sub{font-size:10px}
+  .view-ctrl{
+    flex-wrap:wrap;
+    gap:4px;
+    width:100%;
+    justify-content:flex-end;
+  }
+  .clock{
+    font-size:18px;
+    min-width:80px;
+  }
+  .back-btn{font-size:11px;padding:4px 8px}
+  .ref-btn{font-size:11px;padding:4px 8px}
+
+  /* --- フロアマップは非表示（スマホでは小さすぎる） --- */
+  .floor-map-wrap{display:none}
+
+  /* --- 閲覧エリア：フロアマップ非表示分だけ拡張 --- */
+  .view-page{flex:1}
+
+  /* --- ラインカード：縦並びレイアウトに切り替え --- */
+  .vline{
+    flex-direction:column;
+    min-height:0;
+  }
+
+  /* ライン番号ヘッダー */
+  .vl-hd{
+    width:100%;
+    flex-direction:row;
+    justify-content:flex-start;
+    align-items:center;
+    padding:4px 10px;
+    border-right:none;
+    border-left:none;
+    border-bottom:3px solid rgba(255,255,255,.85);
+    border-top:3px solid rgba(255,255,255,.6);
+    gap:8px;
+    min-height:36px;
+  }
+  .vl-no{
+    font-size:clamp(18px,5vw,28px) !important;
+    text-align:left;
+  }
+  .vl-who{
+    font-size:11px;
+    margin:0;
+  }
+  .vl-card-del-btn{
+    margin-top:0;
+    width:auto;
+    padding:2px 8px;
+    font-size:11px;
+  }
+
+  /* ボディ：縦並び */
+  .vl-body{
+    flex-direction:column;
+    padding:2px 4px;
+    gap:2px;
+    overflow:visible;
+  }
+
+  /* 品名エリア：横スクロール可能に */
+  .vl-prod-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* 各品目行：スマホ向けグリッド再定義 */
+  .prow{
+    grid-template-columns:1fr auto;
+    grid-template-rows:auto auto;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    padding:4px 0;
+    gap:2px;
+  }
+  .prow:last-child{border-bottom:none}
+
+  /* 品名：1行目・左 */
+  .prow-col-name{
+    grid-column:1;
+    grid-row:1;
+    padding:2px 6px;
+    border-right:none;
+  }
+  .prow-name{
+    font-size:13px !important;
+  }
+  .prow-name strong{font-size:13px}
+  .pname-text{font-size:13px !important}
+
+  /* 工程：1行目・右 */
+  .prow-col-proc{
+    grid-column:2;
+    grid-row:1;
+    border-right:none;
+    padding:2px 4px;
+    align-items:flex-end;
+  }
+  .proc-tag{
+    font-size:12px;
+    padding:1px 5px;
+    min-width:36px;
+  }
+
+  /* 中間検査：2行目・左 */
+  .prow-col-check{
+    grid-column:1;
+    grid-row:2;
+    align-items:flex-start;
+    padding:2px 6px;
+    border-right:none;
+  }
+  .prow-sub-badges{flex-wrap:wrap;gap:2px}
+  .cbadge{
+    font-size:11px;
+    padding:1px 4px;
+    min-width:54px;
+  }
+
+  /* NEXT生産：2行目・右 */
+  .prow-col-next{
+    grid-column:2;
+    grid-row:2;
+    padding:2px 4px;
+    flex-direction:row;
+    align-items:center;
+    gap:4px;
+  }
+  /* NEXT品名 */
+  .prow-col-next > div:first-child{
+    padding:2px 4px;
+    min-width:0;
+  }
+  .prow-col-next span[style*="font-size:26px"]{
+    font-size:13px !important;
+  }
+  /* NEXT工程 */
+  .prow-col-next > div:last-child{
+    width:auto;
+    min-width:36px;
+    border-left:1px solid rgba(120,200,255,.3);
+  }
+
+  /* ヘッダー行：スマホでは簡略化 */
+  .prow-header{
+    display:grid;
+    grid-template-columns:1fr auto;
+    padding:2px 4px;
+    margin-bottom:1px;
+  }
+  .prow-header-col{
+    font-size:10px;
+    padding:1px 4px;
+    letter-spacing:0;
+  }
+  /* PC用の複雑なヘッダーはスマホで非表示、シンプルな2列に */
+  .prow-header-col:nth-child(3),
+  .prow-header-col:nth-child(4){
+    display:none;
+  }
+
+  /* ページインジケータードット：タップしやすく */
+  .page-dot{width:10px;height:10px}
+
+  /* フロアマップタイトルバー（非表示なので不要だが念のため） */
+  .floor-map-title{display:none}
 }
+
 </style>
   <!-- PWA -->
   <link rel="manifest" id="pwa-manifest">
@@ -435,7 +615,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocFromServer, getDocs, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -475,7 +655,15 @@ const USER_MAP = {
 const MARKS    = ['①','②','③','④','⑤'];
 const LS_HIST  = 'seisan_hist_v3';
 const MAX_HIST = 5;
-let PAGE_SIZE = 4; // 1画面に表示するライン数（セレクターで変更可能）
+// スマホでは2ライン、PCでは4ラインをデフォルトに
+let PAGE_SIZE = (window.innerWidth <= 767) ? 2 : 4;
+// セレクターの初期値もスマホ時は2に設定
+(function(){
+  const sel = document.getElementById('page-size-select');
+  if(sel && window.innerWidth <= 767){
+    sel.value = '2';
+  }
+})();
 let allLines   = [];
 let currentPage = 0;
 let pageTimer  = null;
@@ -1369,8 +1557,23 @@ window.doLogin=async function(){
   if(!employeeId||!pass){ errEl.textContent='社員番号とパスワードを入力してください'; return; }
   btn.disabled=true; loading.style.display='block';
   try{
-    // emailを社員番号から直接構成（Firestoreへの事前アクセス不要）
-    const email=`${employeeId}@factory.local`;
+    // Step1: Firestoreのusersコレクションから社員番号に対応するemailを取得
+    const userSnap=await getDoc(doc(db,COL_USERS,employeeId));
+    if(!userSnap.exists()){
+      errEl.textContent='社員番号が存在しません';
+      document.querySelector('.lg-box').style.animation='lgShake .4s ease';
+      setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
+      btn.disabled=false; loading.style.display='none';
+      return;
+    }
+    const userData=userSnap.data();
+    const email=userData.email;
+    if(!email){
+      errEl.textContent='社員番号に対応するメールアドレスが設定されていません';
+      btn.disabled=false; loading.style.display='none';
+      return;
+    }
+    // Step2: emailとpasswordでFirebase Authentication認証
     await signInWithEmailAndPassword(auth,email,pass);
     // ログイン成功 → onAuthStateChangedがworkerを表示
   }catch(e){
@@ -1399,27 +1602,19 @@ onAuthStateChanged(auth,user=>{
     currentUser=user;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    // user.emailから社員番号を抽出（例: "260@factory.local" → "260"）
-    // ページリロード時も確実に取得できる
-    const employeeId=user.email ? user.email.split('@')[0] : '';
+    // ログイン時に入力した社員番号をlg-emailから取得（認証直後はまだ残っている）
+    const employeeId=document.getElementById('lg-email').value.trim();
     // 暫定表示：社員番号をそのまま表示（Firestore取得完了まで）
     document.getElementById('updater').value=employeeId;
     document.getElementById('user-email-disp').textContent=employeeId;
     // Firestoreのusers/{employeeId}からworkerを取得して表示
     if(employeeId){
-      console.log('[worker取得] 開始 employeeId:', employeeId, 'collection:', COL_USERS);
-      getDocFromServer(doc(db,COL_USERS,employeeId)).then(snap=>{
-        const rawData = snap.data();
-        console.log('[worker取得] snap.exists():', snap.exists());
-        console.log('[worker取得] フィールド一覧:', rawData ? Object.keys(rawData) : 'null');
-        console.log('[worker取得] 全データ:', JSON.stringify(rawData));
-        const worker=snap.exists()&&rawData&&rawData.worker ? rawData.worker : employeeId;
-        console.log('[worker取得] 表示名:', worker);
+      getDoc(doc(db,COL_USERS,employeeId)).then(snap=>{
+        const worker=snap.exists()&&snap.data().worker ? snap.data().worker : employeeId;
         document.getElementById('updater').value=worker;
         document.getElementById('user-email-disp').textContent=worker;
       }).catch(e=>{
-        console.error('[worker取得失敗] code:', e.code, 'message:', e.message);
-        setStatus('fb-err', '⚠️ worker取得失敗: ' + (e.code||e.message));
+        console.warn('[worker取得失敗] employeeId:', employeeId, e.message);
       });
     }
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
