@@ -1556,34 +1556,51 @@ window.doLogin=async function(){
   errEl.textContent='';
   if(!employeeId||!pass){ errEl.textContent='社員番号とパスワードを入力してください'; return; }
   btn.disabled=true; loading.style.display='block';
-  try{
-    // Step1: Firestoreのusersコレクションから社員番号に対応するemailを取得
-    const userSnap=await getDoc(doc(db,COL_USERS,employeeId));
-    if(!userSnap.exists()){
-      errEl.textContent='社員番号が存在しません';
-      document.querySelector('.lg-box').style.animation='lgShake .4s ease';
-      setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
-      btn.disabled=false; loading.style.display='none';
-      return;
-    }
-    const userData=userSnap.data();
-    const email=userData.email;
-    if(!email){
-      errEl.textContent='社員番号に対応するメールアドレスが設定されていません';
-      btn.disabled=false; loading.style.display='none';
-      return;
-    }
-    // Step2: emailとpasswordでFirebase Authentication認証
-    await signInWithEmailAndPassword(auth,email,pass);
-    // ログイン成功 → onAuthStateChangedがworkerを表示
-  }catch(e){
-    let msg='ログインに失敗しました';
-    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='パスワードが正しくありません';
-    else if(e.code==='auth/too-many-requests') msg='ログイン試行が多すぎます。しばらく待ってください';
-    else if(e.code==='auth/user-not-found') msg='社員番号が存在しません';
-    errEl.textContent=msg;
+
+  const shake = ()=>{
     document.querySelector('.lg-box').style.animation='lgShake .4s ease';
     setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
+  };
+
+  try{
+    // Step1: 社員番号をメールアドレスに変換
+    // まずFirestoreからemailを取得（未認証でも読めるようルールを要設定）
+    let email = null;
+    try{
+      const userSnap=await getDoc(doc(db,COL_USERS,employeeId));
+      if(!userSnap.exists()){
+        errEl.textContent='社員番号が存在しません';
+        shake(); btn.disabled=false; loading.style.display='none';
+        return;
+      }
+      email=userSnap.data().email||null;
+    }catch(fsErr){
+      // Firestoreルールで未認証読み取りが拒否された場合→emailを自動生成して認証を試みる
+      console.warn('[Login] Firestore読み取りエラー（ルール未設定の可能性）:', fsErr.code, fsErr.message);
+      // フォールバック: 社員番号@factory.local でAuthに直接ログイン試行
+      email = employeeId + '@factory.local';
+    }
+
+    if(!email){
+      errEl.textContent='メールアドレスが設定されていません（管理者に連絡してください）';
+      shake(); btn.disabled=false; loading.style.display='none';
+      return;
+    }
+
+    // Step2: Firebase Authentication でサインイン
+    await signInWithEmailAndPassword(auth, email, pass);
+    // 成功 → onAuthStateChanged が worker を表示
+
+  }catch(e){
+    console.error('[Login] エラー:', e.code, e.message);
+    let msg='ログインに失敗しました';
+    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='パスワードが正しくありません';
+    else if(e.code==='auth/user-not-found') msg='社員番号が存在しません';
+    else if(e.code==='auth/too-many-requests') msg='試行回数が多すぎます。しばらく待ってください';
+    else if(e.code==='auth/network-request-failed') msg='ネットワークエラーです。接続を確認してください';
+    else msg='エラー: '+e.code;   // 原因を画面に表示してデバッグしやすく
+    errEl.textContent=msg;
+    shake();
   }
   btn.disabled=false; loading.style.display='none';
 };
