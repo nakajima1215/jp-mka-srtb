@@ -1547,23 +1547,8 @@ window.doLogin=async function(){
   if(!employeeId||!pass){ errEl.textContent='社員番号とパスワードを入力してください'; return; }
   btn.disabled=true; loading.style.display='block';
   try{
-    // Step1: Firestoreのusersコレクションから社員番号に対応するemailを取得
-    const userSnap=await getDoc(doc(db,COL_USERS,employeeId));
-    if(!userSnap.exists()){
-      errEl.textContent='社員番号が存在しません';
-      document.querySelector('.lg-box').style.animation='lgShake .4s ease';
-      setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
-      btn.disabled=false; loading.style.display='none';
-      return;
-    }
-    const userData=userSnap.data();
-    const email=userData.email;
-    if(!email){
-      errEl.textContent='社員番号に対応するメールアドレスが設定されていません';
-      btn.disabled=false; loading.style.display='none';
-      return;
-    }
-    // Step2: emailとpasswordでFirebase Authentication認証
+    // 社員番号から email を生成して Firebase Authentication 認証
+    const email=`${employeeId}@factory.local`;
     await signInWithEmailAndPassword(auth,email,pass);
     // ログイン成功 → onAuthStateChangedがworkerを表示
   }catch(e){
