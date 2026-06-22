@@ -227,10 +227,140 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .prow-header-col{font-size:15px;font-weight:700;color:#ffffff;letter-spacing:.06em;padding:2px 10px;text-transform:uppercase}
 .empty{text-align:center;padding:40px 16px;color:#3a6090;font-size:14px;line-height:2}
 @media(max-width:600px){
-  .view-page{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,1fr)}
+  /* 入力画面 */
   .next-row{grid-template-columns:1fr}
   .next-row-hd{display:none}
   .field-xl,.field-lg,.field-sm{min-width:0}
+
+  /* ヘッダーバー */
+  .view-header-bar{flex-wrap:wrap;padding:6px 8px;gap:4px}
+  .view-title-block h2{font-size:13px}
+  .view-title-block .sub{font-size:10px}
+  .clock{font-size:16px;min-width:60px;letter-spacing:.06em}
+  .view-ctrl{flex-wrap:wrap;gap:4px;width:100%;justify-content:flex-end}
+
+  /* フロアマップ非表示 */
+  .floor-map-wrap{display:none}
+
+  /* view-page：縦スクロールリスト */
+  .view-page{
+    display:flex !important;
+    flex-direction:column !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    gap:6px !important;
+    padding:6px !important;
+    height:auto !important;
+    min-height:0 !important;
+    flex:1 !important;
+  }
+
+  /* ヘッダー行を非表示 */
+  .prow-header{display:none !important}
+
+  /* ラインカード：縦積みカード型 */
+  .vline{
+    flex-direction:column !important;
+    flex:0 0 auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    border-radius:8px !important;
+    overflow:visible !important;
+  }
+
+  /* ライン番号帯：横帯 */
+  .vl-hd{
+    width:100% !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    padding:6px 10px !important;
+    border-right:none !important;
+    border-left:5px solid rgba(255,255,255,.95) !important;
+    border-bottom:2px solid rgba(255,255,255,.5) !important;
+    gap:8px !important;
+    min-height:0 !important;
+  }
+  .vl-no{
+    font-size:22px !important;
+    text-align:left !important;
+    line-height:1 !important;
+  }
+  .vl-who{font-size:11px}
+  .vl-del-btn{position:static !important;top:auto !important;right:auto !important;margin-left:auto}
+
+  /* ボディ：通常表示 */
+  .vl-body{
+    flex-direction:column !important;
+    padding:4px 6px !important;
+    gap:2px !important;
+    overflow:visible !important;
+    min-height:0 !important;
+  }
+  .vl-prod-wrap{overflow:visible !important}
+  .prows-body{overflow:visible !important;min-height:0 !important}
+
+  /* 品名行：スマホ用2段レイアウト */
+  .prow{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+    flex:0 0 auto !important;
+    min-height:0 !important;
+    overflow:visible !important;
+    padding:5px 0 !important;
+    border-bottom:1px solid rgba(255,255,255,.15) !important;
+  }
+  .prow:last-child{border-bottom:none !important}
+
+  /* 品名列：1行目 */
+  .prow-col-name{
+    padding:2px 6px !important;
+    border-right:none !important;
+    border-bottom:none !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+  .prow-name{flex-wrap:nowrap}
+  .pname-text{
+    font-size:15px !important;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* 2行目：工程・中間検査・NEXT をまとめて横並び */
+  .prow-col-proc,
+  .prow-col-check,
+  .prow-col-next{
+    border-right:none !important;
+    padding:2px 6px !important;
+  }
+
+  /* 工程・検査・NEXTを1行に並べるラッパー（JS側でクラス追加） */
+  .sp-row2{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:4px !important;
+    flex-wrap:wrap !important;
+    padding:2px 6px !important;
+  }
+
+  .proc-tag{font-size:12px !important;padding:1px 5px !important;min-width:32px !important}
+  .cbadge{font-size:11px !important;padding:1px 4px !important;min-width:44px !important}
+  .next-badge{font-size:11px !important;padding:1px 4px !important}
+
+  /* prow-col-next のNEXT品名 */
+  .prow-col-next [style*="font-size:26px"]{font-size:13px !important}
+  .prow-col-next [style*="font-size:13px"]{font-size:11px !important}
+
+  /* ページドット */
+  .page-dot{width:6px;height:6px}
+
+  /* 全ライン表示時もスクロール */
+  #view-body{overflow-y:auto !important}
 }
 </style>
   <!-- PWA -->
@@ -1133,10 +1263,44 @@ function renderPage(pageIdx){
     const pnameFontSize = displayCount <= 3 ? 32 : displayCount === 4 ? 22 : 16;
     const pmarkFontSize = displayCount <= 3 ? 22 : displayCount === 4 ? 15 : 12;
     const filledProds = MARKS.slice(0,displayCount).map((mark,i)=>({mark, p:allProds[i]||{}, n:allNexts[i]||{}}));
+    const isMob = window.innerWidth <= 600;
     const prodRows = filledProds.length ? filledProds.map(({mark,p,n},rowIdx) => {
       const proc = procLabel(p.start, p.end);
       const nextProc = procLabel(n.start, n.end);
       const empty = !p.name;
+      if(isMob){
+        // スマホ：品名1行 ＋ 工程・検査・NEXT横並び1行
+        return `<div class="prow${empty?'':' prow-has-data'}">
+          <div class="prow-col-name" onclick="inlineEditCell(event,'${docId}',${rowIdx},'pname',this)" style="cursor:pointer">
+            <span class="prow-name" style="font-size:13px;${empty?'opacity:.3':''}">
+              <strong style="font-size:14px;margin-right:4px">${mark}</strong>
+              ${p.name
+                ?`<span class="pname-text" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>`
+                :`<span class="pname-text" style="font-size:12px;opacity:.4">—</span>`}
+            </span>
+          </div>
+          <div class="sp-row2">
+            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap">工程:</span>
+            <span onclick="inlineEditCell(event,'${docId}',${rowIdx},'proc',this)" style="cursor:pointer;${empty?'opacity:.2':''}">
+              ${proc?`<span class="proc-tag">${proc}</span>`:'<span style="font-size:10px;color:#2a4060">—</span>'}
+            </span>
+            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap;margin-left:4px">検査:</span>
+            <span onclick="toggleCheck(event,'${docId}',${rowIdx},1,${p.check1?'true':'false'})" style="cursor:pointer;${empty?'opacity:.2':''}">
+              <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1✓':'1回'}</span>
+            </span>
+            <span onclick="toggleCheck(event,'${docId}',${rowIdx},2,${p.check2?'true':'false'})" style="cursor:pointer;${empty?'opacity:.2':''}">
+              <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2✓':'2回'}</span>
+            </span>
+            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap;margin-left:4px">NEXT:</span>
+            <span onclick="inlineEditCell(event,'${docId}',${rowIdx},'nname',this)" style="cursor:pointer;flex:1;min-width:0">
+              ${n.name
+                ?`<span style="font-size:13px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.name}</span>`
+                :'<span style="font-size:10px;color:rgba(160,210,255,.3)">—</span>'}
+            </span>
+            ${nextProc?`<span onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)" style="cursor:pointer"><span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4)">${nextProc}</span></span>`:''}
+          </div>
+        </div>`;
+      }
       return `<div class="prow${empty?'':' prow-has-data'}">
         <div class="prow-col-name" onclick="inlineEditCell(event,'${docId}',${rowIdx},'pname',this)" style="cursor:pointer">
           <span class="prow-name" style="font-size:${pmarkFontSize}px;${empty?'opacity:.3':''}"><strong>${mark}</strong>${p.name?' <span class=\"pname-text\" style=\"font-size:${pnameFontSize}px\">' + p.name + '</span>':' <span class=\"pname-text\" style=\"font-size:${pnameFontSize}px;opacity:.4\">—</span>'}</span>
@@ -1181,10 +1345,22 @@ function renderPage(pageIdx){
   }).join('');
 
   renderPageDots(pi,totalPages);
-  // 全ライン表示モードはmax-height解除・スクロール許可、それ以外は均等分割
+
+  const isMobile = window.innerWidth <= 600;
   const isAll = PAGE_SIZE >= 9999;
   const viewPage = document.getElementById('view-body');
-  if(isAll){
+
+  if(isMobile){
+    // スマホ：縦スクロールリスト、JS側のheight/flex制御を全解除
+    document.querySelectorAll('#view-body .vline').forEach(v=>{
+      v.style.maxHeight = '';
+      v.style.flex = '0 0 auto';
+      v.style.minHeight = '';
+    });
+    viewPage.style.overflowY = 'auto';
+    viewPage.style.flexWrap = 'nowrap';
+    viewPage.style.height = 'auto';
+  } else if(isAll){
     document.querySelectorAll('#view-body .vline').forEach(v=>{
       v.style.maxHeight = '';
       v.style.flex = '0 0 auto';
@@ -1369,8 +1545,23 @@ window.doLogin=async function(){
   if(!employeeId||!pass){ errEl.textContent='社員番号とパスワードを入力してください'; return; }
   btn.disabled=true; loading.style.display='block';
   try{
-    // 社員番号から email を生成して Firebase Authentication 認証
-    const email=`${employeeId}@factory.local`;
+    // Step1: Firestoreのusersコレクションから社員番号に対応するemailを取得
+    const userSnap=await getDoc(doc(db,COL_USERS,employeeId));
+    if(!userSnap.exists()){
+      errEl.textContent='社員番号が存在しません';
+      document.querySelector('.lg-box').style.animation='lgShake .4s ease';
+      setTimeout(()=>document.querySelector('.lg-box').style.animation='',500);
+      btn.disabled=false; loading.style.display='none';
+      return;
+    }
+    const userData=userSnap.data();
+    const email=userData.email;
+    if(!email){
+      errEl.textContent='社員番号に対応するメールアドレスが設定されていません';
+      btn.disabled=false; loading.style.display='none';
+      return;
+    }
+    // Step2: emailとpasswordでFirebase Authentication認証
     await signInWithEmailAndPassword(auth,email,pass);
     // ログイン成功 → onAuthStateChangedがworkerを表示
   }catch(e){
