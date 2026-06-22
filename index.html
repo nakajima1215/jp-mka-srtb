@@ -250,7 +250,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
     overflow-x:hidden !important;
     gap:6px !important;
     padding:6px !important;
-    height:auto !important;
+    height:100% !important;
     min-height:0 !important;
     flex:1 !important;
   }
@@ -359,8 +359,10 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   /* ページドット */
   .page-dot{width:6px;height:6px}
 
-  /* 全ライン表示時もスクロール */
-  #view-body{overflow-y:auto !important}
+  /* view-main・view-bodyの高さを維持してスクロール */
+  #pane-view{overflow:hidden !important}
+  .view-main{flex:1 !important;min-height:0 !important;overflow:hidden !important}
+  #view-body{overflow-y:auto !important;flex:1 !important;min-height:0 !important}
 }
 </style>
   <!-- PWA -->
@@ -1359,7 +1361,7 @@ function renderPage(pageIdx){
     });
     viewPage.style.overflowY = 'auto';
     viewPage.style.flexWrap = 'nowrap';
-    viewPage.style.height = 'auto';
+
   } else if(isAll){
     document.querySelectorAll('#view-body .vline').forEach(v=>{
       v.style.maxHeight = '';
