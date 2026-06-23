@@ -373,6 +373,12 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 
   /* ページドット */
   .page-dot{width:6px;height:6px}
+  /* スマホでは表示ライン数セレクターとページドットを非表示 */
+  #page-size-select{display:none !important}
+  #page-size-select+span,
+  #page-size-select ~ *{display:none !important}
+  .view-ctrl > div:has(#page-size-select){display:none !important}
+  .page-indicator{display:none !important}
 
   /* view-mainとview-bodyで閲覧画面内スクロール・背景透け防止 */
   #pane-view{
@@ -582,6 +588,11 @@ input,textarea{-webkit-user-select:text;user-select:text}
         <div class="clock" id="clock">--:--:--</div>
       </div>
     </div>
+    <!-- モバイル用ラインフィルターバー -->
+    <div id="mob-line-filter" style="display:none;overflow-x:auto;white-space:nowrap;padding:5px 8px;background:rgba(0,15,50,.6);border-bottom:1px solid rgba(100,160,255,.2);-webkit-overflow-scrolling:touch">
+      <span style="font-size:10px;color:#6a9fd8;font-weight:700;margin-right:6px;vertical-align:middle">ライン:</span>
+      <span id="mob-line-btns"></span>
+    </div>
     <div class="view-main">
       <div class="view-page" id="view-body">
         <div class="empty">読み込み中…</div>
@@ -652,6 +663,7 @@ const LS_HIST  = 'seisan_hist_v3';
 const MAX_HIST = 5;
 let PAGE_SIZE = 4; // 1画面に表示するライン数（セレクターで変更可能）
 let allLines   = [];
+let mobSelectedLines = new Set(); // モバイル選択中ラインID
 let currentPage = 0;
 let pageTimer  = null;
 
@@ -1279,10 +1291,12 @@ function renderPage(pageIdx){
     el.innerHTML='<div class="empty" style="grid-column:1/-1">📋 登録データがありません</div>';
     renderPageDots(0,0); return;
   }
-  const totalPages=Math.ceil(allLines.length/PAGE_SIZE);
+  const isMobFilter = window.innerWidth<=600 && mobSelectedLines.size>0;
+  const filteredLines = isMobFilter ? allLines.filter(l=>mobSelectedLines.has(l._id||toDocId(l.lineNo))) : allLines;
+  const totalPages=Math.ceil(filteredLines.length/PAGE_SIZE)||1;
   const pi=((pageIdx%totalPages)+totalPages)%totalPages;
   currentPage=pi;
-  const slice=allLines.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
+  const slice=filteredLines.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
   const lineCount=slice.length;
 
   // ヘッダー行（列ラベル）
@@ -1602,6 +1616,30 @@ function updateClock(){
 setInterval(updateClock,1000);
 
 /* ===== タブ切替 ===== */
+function renderMobLineFilter(){
+  const bar = document.getElementById('mob-line-filter');
+  const btns = document.getElementById('mob-line-btns');
+  if(!bar||!btns) return;
+  if(window.innerWidth>600){ bar.style.display='none'; return; }
+  bar.style.display='block';
+  btns.innerHTML = allLines.map(l=>{
+    const id = l._id||toDocId(l.lineNo);
+    const on = mobSelectedLines.has(id);
+    return `<button onclick="toggleMobLine('${id}')" style="
+      display:inline-block;margin:0 3px;padding:3px 10px;border-radius:14px;
+      font-size:12px;font-weight:700;cursor:pointer;vertical-align:middle;
+      border:1.5px solid ${on?'#7dd3fc':'rgba(100,160,255,.35)'};
+      background:${on?'rgba(80,180,255,.25)':'rgba(0,20,60,.5)'};
+      color:${on?'#7dd3fc':'rgba(160,200,255,.6)'};
+    ">${l.lineNo||id}</button>`;
+  }).join('');
+}
+window.toggleMobLine=function(id){
+  if(mobSelectedLines.has(id)) mobSelectedLines.delete(id);
+  else mobSelectedLines.add(id);
+  renderMobLineFilter();
+  renderPage(0);
+}
 window.switchTab=function(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
