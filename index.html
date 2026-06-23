@@ -1320,14 +1320,15 @@ function renderPage(pageIdx){
         // 行3: NEXT品名 | NEXT工程
         const lbl    = 'font-size:10px;color:#6a9fd8;font-weight:700;white-space:nowrap;display:block;margin-bottom:2px';
         const lblN   = 'font-size:10px;color:#4ab8d8;font-weight:700;white-space:nowrap;display:block;margin-bottom:2px';
-        const cell   = 'padding:5px 10px;min-width:0;overflow:hidden';
-        const cellBg = 'padding:5px 10px;min-width:0;overflow:hidden;background:rgba(0,20,60,.35)';
-        const divider= 'border-top:1px solid rgba(255,255,255,.1);border-left:1px solid rgba(255,255,255,.1)';
+        const cellL  = 'padding:5px 8px;min-width:0;overflow:hidden';
+        const cellR  = 'padding:5px 8px;white-space:nowrap;border-left:1px solid rgba(255,255,255,.1)';
+        const cellLB = 'padding:5px 8px;min-width:0;overflow:hidden;background:rgba(0,20,60,.35)';
+        const cellRB = 'padding:5px 8px;white-space:nowrap;border-left:1px solid rgba(255,255,255,.1);background:rgba(0,20,60,.35)';
         return `<div class="prow${empty?'':' prow-has-data'}"
-                     style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid rgba(255,255,255,.18);border-radius:6px;overflow:hidden">
+                     style="display:grid;grid-template-columns:1fr min-content;border-bottom:2px solid rgba(255,255,255,.18);border-radius:6px;overflow:hidden">
 
           <!-- 行1: 品名（2列まとめ） -->
-          <div style="grid-column:1/-1;display:flex;align-items:center;padding:6px 10px;
+          <div style="grid-column:1/-1;display:flex;align-items:center;padding:6px 8px;
                       border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer"
                onclick="inlineEditCell(event,'${docId}',${rowIdx},'pname',this)">
             <strong style="font-size:16px;color:#fff;margin-right:7px;flex-shrink:0;${empty?'opacity:.4':''}">${mark}</strong>
@@ -1337,7 +1338,7 @@ function renderPage(pageIdx){
           </div>
 
           <!-- 行2左: 工程 -->
-          <div style="${cell};cursor:pointer;border-top:1px solid rgba(255,255,255,.1)"
+          <div style="${cellL};cursor:pointer;border-top:1px solid rgba(255,255,255,.1)"
                onclick="inlineEditCell(event,'${docId}',${rowIdx},'proc',this)">
             <span style="${lbl}">工程</span>
             <span style="${empty?'opacity:.2':''}">
@@ -1347,19 +1348,19 @@ function renderPage(pageIdx){
             </span>
           </div>
 
-          <!-- 行2右: 中間検査 -->
-          <div style="${cell};${divider}">
+          <!-- 行2右: 中間検査（右端に寄せる） -->
+          <div style="${cellR};border-top:1px solid rgba(255,255,255,.1)">
             <span style="${lbl}">検査</span>
-            <span style="display:flex;gap:4px;align-items:center;${empty?'opacity:.2':''}">
+            <span style="display:flex;gap:3px;align-items:center;${empty?'opacity:.2':''}">
               <span class="cbadge ${p.check1?'cb-on':'cb-off'}" style="cursor:pointer;font-size:11px"
-                    onclick="toggleCheck(event,'${docId}',${rowIdx},1,${p.check1?'true':'false'})">${p.check1?'1回目✓':'1回目'}</span>
+                    onclick="toggleCheck(event,'${docId}',${rowIdx},1,${p.check1?'true':'false'})">${p.check1?'1✓':'1回'}</span>
               <span class="cbadge ${p.check2?'cb-on':'cb-off'}" style="cursor:pointer;font-size:11px"
-                    onclick="toggleCheck(event,'${docId}',${rowIdx},2,${p.check2?'true':'false'})">${p.check2?'2回目✓':'2回目'}</span>
+                    onclick="toggleCheck(event,'${docId}',${rowIdx},2,${p.check2?'true':'false'})">${p.check2?'2✓':'2回'}</span>
             </span>
           </div>
 
           <!-- 行3左: NEXT品名 -->
-          <div style="${cellBg};cursor:pointer;border-top:1px solid rgba(255,255,255,.1)"
+          <div style="${cellLB};cursor:pointer;border-top:1px solid rgba(255,255,255,.1)"
                onclick="inlineEditCell(event,'${docId}',${rowIdx},'nname',this)">
             <span style="${lblN}">NEXT</span>
             ${n.name
@@ -1367,8 +1368,8 @@ function renderPage(pageIdx){
               :`<span style="font-size:11px;color:rgba(160,210,255,.2)">—</span>`}
           </div>
 
-          <!-- 行3右: NEXT工程 -->
-          <div style="${cellBg};cursor:pointer;${divider}"
+          <!-- 行3右: NEXT工程（右端に寄せる） -->
+          <div style="${cellRB};cursor:pointer;border-top:1px solid rgba(255,255,255,.1)"
                onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)">
             <span style="${lblN}">工程</span>
             ${nextProc
