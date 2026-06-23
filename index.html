@@ -233,11 +233,23 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   .field-xl,.field-lg,.field-sm{min-width:0}
 
   /* ヘッダーバー */
-  .view-header-bar{flex-wrap:wrap;padding:6px 8px;gap:4px}
-  .view-title-block h2{font-size:13px}
+  .view-header-bar{flex-wrap:wrap;padding:6px 8px;gap:4px;position:relative}
+  .view-title-block h2{font-size:13px;padding-right:70px}
   .view-title-block .sub{font-size:10px}
-  .clock{font-size:16px;min-width:60px;letter-spacing:.06em}
   .view-ctrl{flex-wrap:wrap;gap:4px;width:100%;justify-content:flex-end}
+  /* 時計を右上に固定 */
+  .clock{
+    position:absolute !important;
+    top:6px !important;
+    right:8px !important;
+    font-size:14px !important;
+    min-width:0 !important;
+    letter-spacing:.06em;
+    background:rgba(0,20,60,.5);
+    padding:2px 6px;
+    border-radius:5px;
+    border:1px solid rgba(160,210,255,.25);
+  }
 
   /* フロアマップ非表示 */
   .floor-map-wrap{display:none}
@@ -1339,7 +1351,7 @@ function renderPage(pageIdx){
             </span>
           </div>
 
-          <!-- 行3: NEXT生産予定 -->
+          <!-- 行3: NEXT生産予定（品名行 + 工程行の2段） -->
           <div style="${rowBase};background:rgba(0,20,60,.3);padding:5px 8px">
             <span style="${lbl};color:#4ab8d8;margin-right:6px">NEXT</span>
             <span style="cursor:pointer;flex:1;min-width:0;overflow:hidden"
@@ -1348,7 +1360,10 @@ function renderPage(pageIdx){
                 ?`<span style="font-size:14px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${n.name}</span>`
                 :'<span style="font-size:11px;color:rgba(160,210,255,.2)">—</span>'}
             </span>
-            <span style="cursor:pointer;flex-shrink:0;margin-left:8px;min-width:48px;display:flex;align-items:center;justify-content:center"
+          </div>
+          <div style="${rowBase};background:rgba(0,20,60,.3);padding:4px 8px">
+            <span style="${lbl};color:#4ab8d8;margin-right:6px">工程</span>
+            <span style="cursor:pointer;display:flex;align-items:center"
                   onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)">
               ${nextProc
                 ?`<span class="proc-tag next-proc-tag">${nextProc}</span>`
