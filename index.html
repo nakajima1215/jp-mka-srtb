@@ -1694,8 +1694,9 @@ onAuthStateChanged(auth,user=>{
     currentUser=user;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    // ログイン時に入力した社員番号をlg-emailから取得（認証直後はまだ残っている）
-    const employeeId=document.getElementById('lg-email').value.trim();
+    // メールアドレス（360@factory.local）から社員番号を取得
+    const emailId = user.email||'';
+    const employeeId = emailId.includes('@') ? emailId.split('@')[0] : (document.getElementById('lg-email').value.trim());
     // 暫定表示：社員番号をそのまま表示（Firestore取得完了まで）
     document.getElementById('updater').value=employeeId;
     document.getElementById('user-email-disp').textContent=employeeId;
