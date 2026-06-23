@@ -1508,6 +1508,7 @@ function renderPageDots(pi,total){
 }
 
 function startPageTimer(){
+  if(window.innerWidth<=600) return; // モバイルは自動切り替えなし
   stopPageTimer();
   pageTimer=setInterval(()=>{
     const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
