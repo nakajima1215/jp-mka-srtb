@@ -359,8 +359,13 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
   /* ページドット */
   .page-dot{width:6px;height:6px}
 
-  /* view-main・view-bodyの高さを維持してスクロール */
-  #pane-view{overflow:hidden !important}
+  /* view-main・view-bodyの高さを維持してスクロール＋背景を確実に不透過に */
+  #pane-view{
+    overflow:hidden !important;
+    background:#0d2f6e !important;
+    background:linear-gradient(160deg,#0d2f6e 0%,#1251a3 45%,#0a3d8f 100%) !important;
+    isolation:isolate !important;
+  }
   .view-main{flex:1 !important;min-height:0 !important;overflow:hidden !important}
   #view-body{overflow-y:auto !important;flex:1 !important;min-height:0 !important}
 }
@@ -1274,35 +1279,37 @@ function renderPage(pageIdx){
       const nextProc = procLabel(n.start, n.end);
       const empty = !p.name;
       if(isMob){
-        // スマホ：品名1行 ＋ 工程・検査・NEXT横並び1行
-        return `<div class="prow${empty?'':' prow-has-data'}">
-          <div class="prow-col-name" onclick="inlineEditCell(event,'${docId}',${rowIdx},'pname',this)" style="cursor:pointer">
-            <span class="prow-name" style="font-size:13px;${empty?'opacity:.3':''}">
-              <strong style="font-size:14px;margin-right:4px">${mark}</strong>
-              ${p.name
-                ?`<span class="pname-text" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>`
-                :`<span class="pname-text" style="font-size:12px;opacity:.4">—</span>`}
-            </span>
+        // スマホ：グリッドで列固定レイアウト
+        // 列定義: [ラベル固定幅] [値固定幅] [ラベル固定幅] [値固定幅] [ラベル固定幅] [値flex]
+        return `<div class="prow${empty?'':' prow-has-data'}" style="display:grid;grid-template-columns:auto 1fr;border-bottom:1px solid rgba(255,255,255,.12)">
+          <!-- 品名行 -->
+          <div colspan="2" style="grid-column:1/-1;display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;min-width:0;overflow:hidden"
+               onclick="inlineEditCell(event,'${docId}',${rowIdx},'pname',this)">
+            <strong style="font-size:15px;margin-right:6px;flex-shrink:0;${empty?'opacity:.3':''}">${mark}</strong>
+            ${p.name
+              ?`<span style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">${p.name}</span>`
+              :`<span style="font-size:12px;opacity:.3;flex:1">—</span>`}
           </div>
-          <div class="sp-row2">
-            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap">工程:</span>
-            <span onclick="inlineEditCell(event,'${docId}',${rowIdx},'proc',this)" style="cursor:pointer;${empty?'opacity:.2':''}">
-              ${proc?`<span class="proc-tag">${proc}</span>`:'<span style="font-size:10px;color:#2a4060">—</span>'}
+          <!-- 工程・検査・NEXT グリッド行 -->
+          <div style="grid-column:1/-1;display:grid;grid-template-columns:3em 1fr 5em 1fr 4em 1fr;align-items:center;gap:0;padding:4px 8px;min-width:0">
+            <span style="font-size:10px;color:#6a9fd8;font-weight:700;white-space:nowrap">工程</span>
+            <span style="cursor:pointer;${empty?'opacity:.2':''}" onclick="inlineEditCell(event,'${docId}',${rowIdx},'proc',this)">
+              ${proc?`<span class="proc-tag" style="font-size:12px">${proc}</span>`:'<span style="font-size:11px;color:#2a4060">—</span>'}
             </span>
-            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap;margin-left:4px">検査:</span>
-            <span onclick="toggleCheck(event,'${docId}',${rowIdx},1,${p.check1?'true':'false'})" style="cursor:pointer;${empty?'opacity:.2':''}">
-              <span class="cbadge ${p.check1?'cb-on':'cb-off'}">${p.check1?'1✓':'1回'}</span>
+            <span style="font-size:10px;color:#6a9fd8;font-weight:700;white-space:nowrap;padding-left:4px">検査</span>
+            <span style="display:flex;gap:3px;align-items:center;${empty?'opacity:.2':''}">
+              <span class="cbadge ${p.check1?'cb-on':'cb-off'}" style="cursor:pointer;font-size:11px" onclick="toggleCheck(event,'${docId}',${rowIdx},1,${p.check1?'true':'false'})">${p.check1?'1✓':'1回'}</span>
+              <span class="cbadge ${p.check2?'cb-on':'cb-off'}" style="cursor:pointer;font-size:11px" onclick="toggleCheck(event,'${docId}',${rowIdx},2,${p.check2?'true':'false'})">${p.check2?'2✓':'2回'}</span>
             </span>
-            <span onclick="toggleCheck(event,'${docId}',${rowIdx},2,${p.check2?'true':'false'})" style="cursor:pointer;${empty?'opacity:.2':''}">
-              <span class="cbadge ${p.check2?'cb-on':'cb-off'}">${p.check2?'2✓':'2回'}</span>
+            <span style="font-size:10px;color:#6a9fd8;font-weight:700;white-space:nowrap;padding-left:4px">NEXT</span>
+            <span style="display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden">
+              <span style="cursor:pointer;flex:1;min-width:0;overflow:hidden" onclick="inlineEditCell(event,'${docId}',${rowIdx},'nname',this)">
+                ${n.name
+                  ?`<span style="font-size:13px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${n.name}</span>`
+                  :'<span style="font-size:10px;color:rgba(160,210,255,.3)">—</span>'}
+              </span>
+              ${nextProc?`<span style="cursor:pointer;flex-shrink:0" onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)"><span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4);font-size:11px">${nextProc}</span></span>`:''}
             </span>
-            <span style="font-size:10px;color:#6a9fd8;font-weight:600;white-space:nowrap;margin-left:4px">NEXT:</span>
-            <span onclick="inlineEditCell(event,'${docId}',${rowIdx},'nname',this)" style="cursor:pointer;flex:1;min-width:0">
-              ${n.name
-                ?`<span style="font-size:13px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.name}</span>`
-                :'<span style="font-size:10px;color:rgba(160,210,255,.3)">—</span>'}
-            </span>
-            ${nextProc?`<span onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)" style="cursor:pointer"><span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4)">${nextProc}</span></span>`:''}
           </div>
         </div>`;
       }
