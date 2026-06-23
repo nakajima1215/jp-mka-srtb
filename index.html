@@ -348,7 +348,8 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
     padding:2px 6px !important;
   }
 
-  .proc-tag{font-size:12px !important;padding:1px 5px !important;min-width:32px !important}
+  .proc-tag{font-size:12px !important;padding:1px 5px !important;min-width:32px !important;color:#ffe066 !important}
+  .next-proc-tag{color:#7df4ff !important;border-color:rgba(100,230,255,.4) !important}
   .cbadge{font-size:11px !important;padding:1px 4px !important;min-width:44px !important}
   .next-badge{font-size:11px !important;padding:1px 4px !important}
 
@@ -1347,12 +1348,12 @@ function renderPage(pageIdx){
                 ?`<span style="font-size:14px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${n.name}</span>`
                 :'<span style="font-size:11px;color:rgba(160,210,255,.2)">—</span>'}
             </span>
-            ${nextProc
-              ?`<span style="cursor:pointer;flex-shrink:0;margin-left:8px"
-                      onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)">
-                  <span class="proc-tag" style="color:#7df4ff;border-color:rgba(100,230,255,.4);font-size:12px">${nextProc}</span>
-                </span>`
-              :''}
+            <span style="cursor:pointer;flex-shrink:0;margin-left:8px;min-width:48px;display:flex;align-items:center;justify-content:center"
+                  onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)">
+              ${nextProc
+                ?`<span class="proc-tag next-proc-tag">${nextProc}</span>`
+                :`<span style="font-size:11px;color:rgba(100,180,255,.25)">—</span>`}
+            </span>
           </div>
 
         </div>`;
