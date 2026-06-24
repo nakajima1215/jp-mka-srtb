@@ -732,9 +732,15 @@ function buildFloorMap(activeLineNos){
       for(const a of activeSet){
         if(a===nm) return true;
         if(nmIsNum){
-          // 数値マッチキーは数値部分の完全一致（例: "1L"→"1" が "1" に一致）
-          const aNumOnly = a.replace(/[^0-9]/g,'');
-          if(aNumOnly === nm) return true;
+          // 数値マッチキーは、activeSetのエントリも純粋な数字のみ（例: "8"）か
+          // 末尾が「ライン」などの日本語を除いた純数字の場合のみ一致とする。
+          // "MC-2" のような英数混合は対象外にして誤マッチを防ぐ。
+          if(/^[0-9]+$/.test(a) && a === nm) return true;
+          // 「8ライン」のように数字＋日本語の場合のみ数字部分を取り出して比較
+          if(/^[0-9]+[^\x00-\x7F]/.test(a)){
+            const aNumOnly = a.replace(/[^0-9]/g,'');
+            if(aNumOnly === nm) return true;
+          }
           continue;
         }
         if(/^[0-9]+$/.test(a)) continue;
