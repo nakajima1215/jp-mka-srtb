@@ -555,6 +555,16 @@ input,textarea{-webkit-user-select:text;user-select:text}
         <div class="field"><input type="text" id="nps3" list="dl-nps3" placeholder="01" autocomplete="off"><datalist id="dl-nps3"></datalist></div>
         <div class="field"><input type="text" id="npe3" list="dl-npe3" placeholder="05" autocomplete="off"><datalist id="dl-npe3"></datalist></div>
       </div>
+      <div class="next-row">
+        <div class="field"><input type="text" id="nn4" list="dl-nn4" placeholder="品名④" autocomplete="off"><datalist id="dl-nn4"></datalist></div>
+        <div class="field"><input type="text" id="nps4" list="dl-nps4" placeholder="01" autocomplete="off"><datalist id="dl-nps4"></datalist></div>
+        <div class="field"><input type="text" id="npe4" list="dl-npe4" placeholder="05" autocomplete="off"><datalist id="dl-npe4"></datalist></div>
+      </div>
+      <div class="next-row">
+        <div class="field"><input type="text" id="nn5" list="dl-nn5" placeholder="品名⑤" autocomplete="off"><datalist id="dl-nn5"></datalist></div>
+        <div class="field"><input type="text" id="nps5" list="dl-nps5" placeholder="01" autocomplete="off"><datalist id="dl-nps5"></datalist></div>
+        <div class="field"><input type="text" id="npe5" list="dl-npe5" placeholder="05" autocomplete="off"><datalist id="dl-npe5"></datalist></div>
+      </div>
     </div>
 
     <div class="err" id="err-msg"></div>
@@ -909,6 +919,8 @@ const ALL_FIELDS=[
   ['nn1','dl-nn1'],['nps1','dl-nps1'],['npe1','dl-npe1'],
   ['nn2','dl-nn2'],['nps2','dl-nps2'],['npe2','dl-npe2'],
   ['nn3','dl-nn3'],['nps3','dl-nps3'],['npe3','dl-npe3'],
+  ['nn4','dl-nn4'],['nps4','dl-nps4'],['npe4','dl-npe4'],
+  ['nn5','dl-nn5'],['nps5','dl-nps5'],['npe5','dl-npe5'],
 ];
 function refreshAllDL(){ ALL_FIELDS.forEach(([fk,dl])=>buildDL(fk,dl)); }
 
@@ -933,7 +945,7 @@ function fillForm(data){
     setChk('c1_'+(i+1),p.check1); setChk('c2_'+(i+1),p.check2);
   }
   const nexts=data.nexts||[];
-  for(let i=0;i<3;i++){
+  for(let i=0;i<5;i++){
     const n=nexts[i]||{};
     setV('nn'+(i+1),n.name); setV('nps'+(i+1),n.start); setV('npe'+(i+1),n.end);
   }
@@ -943,7 +955,7 @@ function clearProductAndNext(){
     setV('pn'+i,''); setV('ps'+i,''); setV('pe'+i,'');
     setChk('c1_'+i,false); setChk('c2_'+i,false);
   }
-  for(let i=1;i<=3;i++){
+  for(let i=1;i<=5;i++){
     setV('nn'+i,''); setV('nps'+i,''); setV('npe'+i,'');
   }
 }
@@ -1026,7 +1038,7 @@ window.saveData = async function(){
   const prods=[];
   for(let i=1;i<=5;i++) prods.push({name:v('pn'+i),start:v('ps'+i),end:v('pe'+i),check1:chk('c1_'+i),check2:chk('c2_'+i)});
   const nexts=[];
-  for(let i=1;i<=3;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
+  for(let i=1;i<=5;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
 
   const updaterName = document.getElementById('updater').value || '';
   const data={lineNo, updater:updaterName, prods, nexts, updatedAt:new Date().toISOString()};
