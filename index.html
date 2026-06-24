@@ -663,11 +663,11 @@ const LS_HIST  = 'seisan_hist_v3';
 const MAX_HIST = 5;
 let PAGE_SIZE = 4; // 1画面に表示するライン数（セレクターで変更可能）
 let allLines   = [];
-// モバイル選択中ラインID（localStorageで再ログイン後も保持）
-let mobSelectedLines = (()=>{
-  try{ const s=localStorage.getItem('mobSelLines'); return s?new Set(JSON.parse(s)):new Set(); }
-  catch(e){ return new Set(); }
-})();
+// モバイル選択中ラインID（ユーザーごとにlocalStorageで保持）
+let mobSelectedLines = new Set();
+function mobSelKey(){ return 'mobSelLines_'+(currentUser?currentUser.uid:''); }
+function saveMobSel(){ try{ localStorage.setItem(mobSelKey(), JSON.stringify([...mobSelectedLines])); }catch(e){} }
+function loadMobSel(){ try{ const s=localStorage.getItem(mobSelKey()); mobSelectedLines=s?new Set(JSON.parse(s)):new Set(); }catch(e){ mobSelectedLines=new Set(); } }
 let currentPage = 0;
 let pageTimer  = null;
 
@@ -1643,7 +1643,7 @@ function renderMobLineFilter(){
 window.toggleMobLine=function(id){
   if(mobSelectedLines.has(id)) mobSelectedLines.delete(id);
   else mobSelectedLines.add(id);
-  try{ localStorage.setItem('mobSelLines', JSON.stringify([...mobSelectedLines])); }catch(e){}
+  saveMobSel();
   renderMobLineFilter();
   renderPage(0);
 }
@@ -1715,6 +1715,8 @@ onAuthStateChanged(auth,user=>{
         console.warn('[worker取得失敗] employeeId:', employeeId, e.message);
       });
     }
+    // ユーザーごとのライン選択を復元
+    loadMobSel();
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
