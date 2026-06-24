@@ -205,7 +205,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 /* 品名テキスト */
 .prow-name{display:flex;align-items:center;gap:4px;color:#e8f4ff;font-weight:600;overflow:hidden;min-width:0}
 .prow-name strong{flex-shrink:0;line-height:1;white-space:nowrap}
-.prow-name .pname-text{line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.prow-name .pname-text{font-size:26px !important;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .prow-sub-label{font-size:10px;color:#6a9fd8;font-weight:600;letter-spacing:.04em;line-height:1;margin-bottom:2px}
 .prow-sub-badges{display:flex;gap:3px;flex-wrap:nowrap;flex-direction:row}
 .prow-sub{display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -731,7 +731,12 @@ function buildFloorMap(activeLineNos){
       const nmIsNum = /^[0-9]+$/.test(nm);
       for(const a of activeSet){
         if(a===nm) return true;
-        if(nmIsNum) continue; // 数値ラベルは完全一致のみ
+        if(nmIsNum){
+          // 数値マッチキーは数値部分の完全一致（例: "1L"→"1" が "1" に一致）
+          const aNumOnly = a.replace(/[^0-9]/g,'');
+          if(aNumOnly === nm) return true;
+          continue;
+        }
         if(/^[0-9]+$/.test(a)) continue;
         if(a.includes(nm) || nm.includes(a)) return true;
       }
@@ -1265,13 +1270,18 @@ window.editDeleteLine = async function(docId, lineNo){
 /* ===== ソート関数（数値昇順→文字列後尾） ===== */
 function sortLines(lines){
   return [...lines].sort((a,b)=>{
-    const aNo=(a.lineNo||''), bNo=(b.lineNo||'');
-    const aNum=parseInt(aNo,10), bNum=parseInt(bNo,10);
-    const aIsNum=!isNaN(aNum)&&String(aNum)===aNo.trim();
-    const bIsNum=!isNaN(bNum)&&String(bNum)===bNo.trim();
-    if(aIsNum&&bIsNum) return aNum-bNum;
-    if(aIsNum) return -1;
-    if(bIsNum) return 1;
+    const aNo=(a.lineNo||'').trim(), bNo=(b.lineNo||'').trim();
+    // 先頭の数値部分を抽出（例: "23L"→23, "A-01"→NaN）
+    const aMatch=aNo.match(/^(\d+)/), bMatch=bNo.match(/^(\d+)/);
+    const aNum=aMatch?parseInt(aMatch[1],10):NaN;
+    const bNum=bMatch?parseInt(bMatch[1],10):NaN;
+    const aHasNum=!isNaN(aNum), bHasNum=!isNaN(bNum);
+    if(aHasNum&&bHasNum){
+      if(aNum!==bNum) return aNum-bNum;
+      return aNo.localeCompare(bNo,'ja',{numeric:true});
+    }
+    if(aHasNum) return -1;
+    if(bHasNum) return 1;
     return aNo.localeCompare(bNo,'ja',{numeric:true});
   });
 }
@@ -1323,7 +1333,7 @@ function renderPage(pageIdx){
     // 稼働製品行：品名 | 工程 | 中間検査 | NEXT生産 の4列構造
     const activeProdCount = Math.max(3, allProds.filter(p=>p&&p.name).length);
     const displayCount = Math.min(activeProdCount, 5);
-    const pnameFontSize = displayCount <= 3 ? 32 : displayCount === 4 ? 22 : 16;
+    const pnameFontSize = 26;
     const pmarkFontSize = displayCount <= 3 ? 22 : displayCount === 4 ? 15 : 12;
     const filledProds = MARKS.slice(0,displayCount).map((mark,i)=>({mark, p:allProds[i]||{}, n:allNexts[i]||{}}));
     const isMob = window.innerWidth <= 600;
@@ -1476,25 +1486,12 @@ function renderPage(pageIdx){
   renderFloorMap();
 }
 
-/* ===== 品名テキスト自動フィット ===== */
+/* ===== 品名テキスト自動フィット（NEXT列と同じ26px固定、はみ出しはCSS省略記号） ===== */
 function fitPnameTexts(){
   requestAnimationFrame(()=>{
-    document.querySelectorAll('#view-body .prow-col-name').forEach(col=>{
-      const span = col.querySelector('.pname-text');
-      if(!span) return;
-      const strong = col.querySelector('strong');
-      const strongW = strong ? strong.offsetWidth + 8 : 0;
-      const availW = col.offsetWidth - strongW - 20;
-      if(availW <= 0) return;
-      let fs = parseFloat(span.style.fontSize) || 16;
-      span.style.fontSize = fs + 'px';
+    document.querySelectorAll('#view-body .pname-text').forEach(span=>{
+      span.style.fontSize = '26px';
       span.style.whiteSpace = 'nowrap';
-      let tries = 0;
-      while(span.scrollWidth > availW && fs > 8 && tries < 30){
-        fs = Math.max(8, fs - 1);
-        span.style.fontSize = fs + 'px';
-        tries++;
-      }
     });
   });
 }
