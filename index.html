@@ -477,8 +477,11 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="row">
         <div class="field field-sm">
           <label>ライン No. ＊</label>
-          <input type="text" id="lineNo" list="dl-lineNo" placeholder="例：A-01" autocomplete="off" oninput="onLineNoInput()">
-          <datalist id="dl-lineNo"></datalist>
+          <select id="lineNo-select" onchange="onLineSelectChange(this.value)"
+            style="width:100%;height:36px;padding:0 8px;border:1px solid #d0d0d0;border-radius:7px;font-size:14px;background:#fafafa;cursor:pointer;outline:none;transition:all .15s">
+            <option value="">-- ライン選択 --</option>
+          </select>
+          <input type="text" id="lineNo" autocomplete="off" oninput="onLineNoInput()" style="display:none">
         </div>
         <div class="field field-lg">
           <label>更新者名（自動）</label>
@@ -492,8 +495,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ①</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn1" list="dl-pn1" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn1"></datalist></div>
-        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps1" list="dl-ps1" placeholder="01" autocomplete="off"><datalist id="dl-ps1"></datalist></div>
-        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe1" list="dl-pe1" placeholder="05" autocomplete="off"><datalist id="dl-pe1"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="ps1" list="dl-ps1" placeholder="01" autocomplete="off"><datalist id="dl-ps1"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="pe1" list="dl-pe1" placeholder="05" autocomplete="off"><datalist id="dl-pe1"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_1"> 1回目</label><label><input type="checkbox" id="c2_1"> 2回目</label></div>
     </div>
@@ -501,8 +504,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ②</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn2" list="dl-pn2" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn2"></datalist></div>
-        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps2" list="dl-ps2" placeholder="01" autocomplete="off"><datalist id="dl-ps2"></datalist></div>
-        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe2" list="dl-pe2" placeholder="05" autocomplete="off"><datalist id="dl-pe2"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="ps2" list="dl-ps2" placeholder="01" autocomplete="off"><datalist id="dl-ps2"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="pe2" list="dl-pe2" placeholder="05" autocomplete="off"><datalist id="dl-pe2"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_2"> 1回目</label><label><input type="checkbox" id="c2_2"> 2回目</label></div>
     </div>
@@ -510,8 +513,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ③</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn3" list="dl-pn3" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn3"></datalist></div>
-        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps3" list="dl-ps3" placeholder="01" autocomplete="off"><datalist id="dl-ps3"></datalist></div>
-        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe3" list="dl-pe3" placeholder="05" autocomplete="off"><datalist id="dl-pe3"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="ps3" list="dl-ps3" placeholder="01" autocomplete="off"><datalist id="dl-ps3"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="pe3" list="dl-pe3" placeholder="05" autocomplete="off"><datalist id="dl-pe3"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_3"> 1回目</label><label><input type="checkbox" id="c2_3"> 2回目</label></div>
     </div>
@@ -519,8 +522,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ④</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn4" list="dl-pn4" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn4"></datalist></div>
-        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps4" list="dl-ps4" placeholder="01" autocomplete="off"><datalist id="dl-ps4"></datalist></div>
-        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe4" list="dl-pe4" placeholder="05" autocomplete="off"><datalist id="dl-pe4"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="ps4" list="dl-ps4" placeholder="01" autocomplete="off"><datalist id="dl-ps4"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="pe4" list="dl-pe4" placeholder="05" autocomplete="off"><datalist id="dl-pe4"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_4"> 1回目</label><label><input type="checkbox" id="c2_4"> 2回目</label></div>
     </div>
@@ -528,8 +531,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ⑤</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn5" list="dl-pn5" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn5"></datalist></div>
-        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps5" list="dl-ps5" placeholder="01" autocomplete="off"><datalist id="dl-ps5"></datalist></div>
-        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe5" list="dl-pe5" placeholder="05" autocomplete="off"><datalist id="dl-pe5"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="ps5" list="dl-ps5" placeholder="01" autocomplete="off"><datalist id="dl-ps5"></datalist></div>
+        <div class="field field-sm"><label>工程</label><input type="text" id="pe5" list="dl-pe5" placeholder="05" autocomplete="off"><datalist id="dl-pe5"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_5"> 1回目</label><label><input type="checkbox" id="c2_5"> 2回目</label></div>
     </div>
@@ -724,6 +727,17 @@ function normLineKey(s){
 function buildFloorMap(activeLineNos){
   const activeSet = new Set((activeLineNos||[]).map(normLineKey));
   // どのセルがアクティブか判定
+  // activeSetの各エントリを「純粋な数字」に正規化するヘルパー
+  // 例: "7L" → "7", "8ライン" → "8", "MC-2" → null（数字のみに変換不可）
+  function toNumKey(a){
+    // 純粋な数字
+    if(/^[0-9]+$/.test(a)) return a;
+    // 数字 + 末尾にL/l（例: "7L", "10L"）
+    if(/^[0-9]+[Ll]$/.test(a)) return a.replace(/[Ll]$/,'');
+    // 数字 + 日本語（例: "8ライン"）
+    if(/^[0-9]+[^\x00-\x7F]/.test(a)) return a.replace(/[^0-9]/g,'');
+    return null; // 英数混合（"MC-2"等）は null → 数値マッチ対象外
+  }
   const isActive = (cell)=>{
     if(!cell.match) return false;
     return cell.match.some(m=>{
@@ -732,18 +746,13 @@ function buildFloorMap(activeLineNos){
       for(const a of activeSet){
         if(a===nm) return true;
         if(nmIsNum){
-          // 数値マッチキーは、activeSetのエントリも純粋な数字のみ（例: "8"）か
-          // 末尾が「ライン」などの日本語を除いた純数字の場合のみ一致とする。
-          // "MC-2" のような英数混合は対象外にして誤マッチを防ぐ。
-          if(/^[0-9]+$/.test(a) && a === nm) return true;
-          // 「8ライン」のように数字＋日本語の場合のみ数字部分を取り出して比較
-          if(/^[0-9]+[^\x00-\x7F]/.test(a)){
-            const aNumOnly = a.replace(/[^0-9]/g,'');
-            if(aNumOnly === nm) return true;
-          }
+          const aNum = toNumKey(a);
+          if(aNum !== null && aNum === nm) return true;
           continue;
         }
-        if(/^[0-9]+$/.test(a)) continue;
+        // 非数値マッチキー（シミズ, MC-2 等）
+        // activeSetのエントリが純粋数字 or 数字+Lなら比較しない
+        if(toNumKey(a) !== null && /^[0-9]/.test(a)) continue;
         if(a.includes(nm) || nm.includes(a)) return true;
       }
       return false;
@@ -986,6 +995,10 @@ function toDocId(lineNo){
 
 window.resetForm = function(){
   setV('lineNo','');
+  const sel = document.getElementById('lineNo-select');
+  if(sel) sel.value = '';
+  const inp = document.getElementById('lineNo');
+  if(inp){ inp.style.display='none'; }
   // updaterはログイン者名を維持
   clearProductAndNext(); showBanner('');
   prevLineNo='';
@@ -1273,23 +1286,47 @@ window.editDeleteLine = async function(docId, lineNo){
   }
 };
 
-/* ===== ソート関数（数値昇順→文字列後尾） ===== */
-function sortLines(lines){
-  return [...lines].sort((a,b)=>{
-    const aNo=(a.lineNo||'').trim(), bNo=(b.lineNo||'').trim();
-    // 先頭の数値部分を抽出（例: "23L"→23, "A-01"→NaN）
-    const aMatch=aNo.match(/^(\d+)/), bMatch=bNo.match(/^(\d+)/);
-    const aNum=aMatch?parseInt(aMatch[1],10):NaN;
-    const bNum=bMatch?parseInt(bMatch[1],10):NaN;
-    const aHasNum=!isNaN(aNum), bHasNum=!isNaN(bNum);
-    if(aHasNum&&bHasNum){
-      if(aNum!==bNum) return aNum-bNum;
-      return aNo.localeCompare(bNo,'ja',{numeric:true});
-    }
-    if(aHasNum) return -1;
-    if(bHasNum) return 1;
-    return aNo.localeCompare(bNo,'ja',{numeric:true});
+/* ===== ソート関数 =====
+   数値系ラインNo（1L,8L,13等）→ 数値昇順
+   非数値系（MC-2,シミズ,ムラタ,樹脂）→ FLOOR_CELLSの定義順
+   未登録ラインは末尾
+===== */
+// ラインNoを純粋な数字文字列に変換。変換できない場合は null
+function toNumKeySort(s){
+  if(/^[0-9]+$/.test(s)) return s;
+  if(/^[0-9]+[Ll]$/.test(s)) return s.replace(/[Ll]$/,'');
+  if(/^[0-9]+[^\x00-\x7F]/.test(s)) return s.replace(/[^0-9]/g,'');
+  return null;
+}
+// 非数値ラインの固定表示順リスト（FLOOR_CELLS の非数値 match から生成）
+function buildNonNumOrder(){
+  const order = [];
+  FLOOR_CELLS.forEach(cell=>{
+    if(cell.type!=='line') return;
+    (cell.match||[cell.label]).forEach(m=>{
+      const k = normLineKey(m);
+      if(/^[0-9]+$/.test(k)) return; // 数値は除外
+      if(!order.includes(k)) order.push(k);
+    });
   });
+  return order;
+}
+function sortLines(lines){
+  const NON_NUM_ORDER = buildNonNumOrder();
+  function lineRank(lineNo){
+    const key = normLineKey(lineNo||'');
+    const keyNum = toNumKeySort(key);
+    if(keyNum !== null){
+      // 数値系：数値昇順のため rank = 数値そのもの（非数値より前）
+      return parseInt(keyNum, 10);
+    }
+    // 非数値系：NON_NUM_ORDER の位置 + 大きなオフセット（数値系の後ろに置く場合は逆）
+    // 数値系を前、非数値系を後ろにしたい場合は 100000 + idx
+    // 今回は数値系が前なので数値系rank=数値、非数値系rank=100000+idx
+    const idx = NON_NUM_ORDER.findIndex(o=> key===o || key.includes(o) || o.includes(key));
+    return idx >= 0 ? 100000 + idx : 200000;
+  }
+  return [...lines].sort((a,b)=> lineRank(a.lineNo) - lineRank(b.lineNo));
 }
 
 /* ===== 閲覧レンダリング ===== */
@@ -1538,10 +1575,45 @@ window.changePageSize = function(val){
 
 function renderLines(lines){
   allLines=sortLines(lines);
+  refreshLineSelect();
   renderMobLineFilter();
   renderPage(currentPage);
   if(editPanelOpen) renderEditPanel();
 }
+
+/* ===== 入力画面ラインセレクト更新 ===== */
+function refreshLineSelect(){
+  const sel = document.getElementById('lineNo-select');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">-- ライン選択 --</option>';
+  allLines.forEach(l=>{
+    const no = l.lineNo||'';
+    const disp = /^\d+$/.test(no) ? no+'L' : no;
+    const opt = document.createElement('option');
+    opt.value = no;
+    opt.textContent = disp;
+    sel.appendChild(opt);
+  });
+  // 選択状態を復元
+  if(current) sel.value = current;
+}
+
+window.onLineSelectChange = function(val){
+  const lineNoInput = document.getElementById('lineNo');
+  if(!val){
+    lineNoInput.value = '';
+    prevLineNo = '';
+    clearProductAndNext();
+    showBanner('');
+    return;
+  }
+  lineNoInput.value = val;
+  // 既存データロード
+  prevLineNo = '';
+  onLineNoInput();
+};
+
 function fitLineNos(){
   document.querySelectorAll('.vl-no').forEach(el=>{
     el.style.fontSize='';
@@ -1640,7 +1712,7 @@ function renderMobLineFilter(){
       border:1.5px solid ${on?'#7dd3fc':'rgba(100,160,255,.35)'};
       background:${on?'rgba(80,180,255,.25)':'rgba(0,20,60,.5)'};
       color:${on?'#7dd3fc':'rgba(160,200,255,.6)'};
-    ">${l.lineNo||id}</button>`;
+    ">${/^\d+$/.test(l.lineNo||'') ? l.lineNo+'L' : (l.lineNo||id)}</button>`;
   }).join('');
 }
 window.toggleMobLine=function(id){
@@ -1658,7 +1730,7 @@ window.switchTab=function(tab){
   if(btn) btn.classList.add('active');
   document.getElementById('pane-'+tab).classList.add('active');
   if(tab==='view'){ startListener(); updateClock(); startPageTimer(); window.addEventListener('resize', fitPnameTexts); }
-  else{ stopListener(); window.removeEventListener('resize', fitPnameTexts); }
+  else{ stopPageTimer(); window.removeEventListener('resize', fitPnameTexts); startListener(); }
 };
 
 /* ===== ログイン / ログアウト ===== */
@@ -1723,6 +1795,8 @@ onAuthStateChanged(auth,user=>{
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
+    // 入力タブ表示中もラインリストを取得するためリスナー開始
+    startListener();
     setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
   }else{
     currentUser=null;
