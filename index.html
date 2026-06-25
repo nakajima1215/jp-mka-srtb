@@ -172,14 +172,14 @@ svg.map-revealed .map-label-overlay{
   box-shadow:inset 0 1px 0 rgba(120,180,255,.1);
 }
 .vl-hd{
-  padding:8px 12px 8px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;flex-wrap:nowrap;
-  position:relative;width:280px;flex-shrink:0;
+  padding:8px 14px 8px 14px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;flex-wrap:nowrap;
+  position:relative;width:auto;flex-shrink:0;
   background:linear-gradient(160deg,rgba(10,55,160,.95) 0%,rgba(5,35,130,.9) 100%);
   border-right:3px solid rgba(255,255,255,.85);
   border-left:5px solid rgba(255,255,255,.95);
   overflow:hidden;
 }
-.vl-no{font-size:clamp(14px,4vw,64px);font-weight:900;color:#fff;letter-spacing:.02em;white-space:nowrap;max-width:100%;text-shadow:0 0 18px rgba(160,220,255,1),0 0 30px rgba(100,180,255,.6);line-height:1.1;text-align:center}
+.vl-no{font-size:clamp(14px,3.5vw,64px);font-weight:900;color:#fff;letter-spacing:.02em;white-space:nowrap;text-shadow:0 0 18px rgba(160,220,255,1),0 0 30px rgba(100,180,255,.6);line-height:1.1;text-align:center}
 .vl-who{font-size:12px;color:#cce8ff;background:rgba(140,200,255,.18);padding:1px 6px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
 .vl-when{font-size:12px;color:#6aaee0;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .vl-del-btn{
@@ -1413,7 +1413,7 @@ function renderPage(pageIdx){
 
   // ヘッダー行（列ラベル）
   const headerRow = `<div class="prow-header">
-    <div class="prow-header-col" style="width:288px;flex-shrink:0">ライン</div>
+    <div class="prow-header-col" id="hd-line-col" style="min-width:80px;max-width:200px;width:min-content;flex-shrink:0">ライン</div>
     <div class="prow-header-col" style="flex:30">稼働中製品</div>
     <div class="prow-header-col" style="flex:8">工程</div>
     <div class="prow-header-col" style="flex:8;padding-left:0">中間検査</div>
@@ -1586,6 +1586,7 @@ function renderPage(pageIdx){
     viewPage.style.flexWrap = 'nowrap';
   }
   fitPnameTexts();
+  fitLineNos();
   renderFloorMap();
 }
 
@@ -1823,6 +1824,7 @@ function renderLines(lines){
     }
   }
   allLines=sortLines([...seen.values()]);
+  calcGlobalHdWidth(); // 全ページ通じた統一幅をここで計算
   renderMobLineFilter();
   if(editPanelOpen){ renderPage(currentPage); renderEditPanel(); return; }
   // 手動モード中は常にcurrentPageで再描画
@@ -1846,18 +1848,63 @@ function renderLines(lines){
     renderPage(currentPage);
   }
 }
+/* 全ページ・全ラインを通じた vl-hd 統一幅をキャッシュ */
+let _cachedHdWidth = 0;
+
+/* allLines 全体から最長ラインNo表示テキストを測定して幅をキャッシュ */
+function calcGlobalHdWidth(){
+  if(!allLines.length){ _cachedHdWidth = 0; return; }
+
+  // オフスクリーン計測用コンテナを一時生成（実際の.vl-noと同じスタイル）
+  const ruler = document.createElement('div');
+  ruler.style.cssText = [
+    'position:absolute','visibility:hidden','pointer-events:none',
+    'top:-9999px','left:-9999px',
+    'display:flex','flex-direction:column','align-items:center',
+    'padding:8px 14px','gap:4px',
+    'background:transparent','white-space:nowrap',
+  ].join(';');
+  document.body.appendChild(ruler);
+
+  // 現在の.vl-noのフォントサイズを取得（clamp値はブラウザが解決済み）
+  const sampleNo = document.querySelector('.vl-no');
+  const fs = sampleNo ? window.getComputedStyle(sampleNo).fontSize : '40px';
+
+  let maxW = 0;
+  allLines.forEach(l=>{
+    const lineNo = l.lineNo || '';
+    const display = /^\d+$/.test(lineNo) ? lineNo + 'L' : lineNo;
+    // ライン番号テキスト
+    const noEl = document.createElement('span');
+    noEl.style.cssText = `font-size:${fs};font-weight:900;letter-spacing:.02em;white-space:nowrap;display:block`;
+    noEl.textContent = display;
+    // 担当者テキスト（vl-who: padding 1px 6px）
+    const whoEl = document.createElement('span');
+    whoEl.style.cssText = 'font-size:12px;white-space:nowrap;padding:1px 6px;display:block';
+    whoEl.textContent = l.updater || '';
+
+    ruler.innerHTML = '';
+    ruler.appendChild(noEl);
+    if(l.updater) ruler.appendChild(whoEl);
+
+    const w = ruler.scrollWidth + 28; // padding 14px×2
+    if(w > maxW) maxW = w;
+  });
+
+  document.body.removeChild(ruler);
+  _cachedHdWidth = maxW;
+}
+
 function fitLineNos(){
-  document.querySelectorAll('.vl-no').forEach(el=>{
-    el.style.fontSize='';
-    const parent = el.closest('.vl-hd');
-    if(!parent) return;
-    const maxW = parent.clientWidth - 24;
-    let size = 100;
-    el.style.fontSize = size+'px';
-    while(el.scrollWidth > maxW && size > 14){
-      size -= 2;
-      el.style.fontSize = size+'px';
-    }
+  if(!_cachedHdWidth) return;
+  requestAnimationFrame(()=>{
+    // 現在ページの全 vl-hd を統一幅にセット
+    document.querySelectorAll('#view-body .vl-hd').forEach(hd=>{
+      hd.style.width = _cachedHdWidth + 'px';
+    });
+    // ヘッダー列も同幅に
+    const hdCol = document.getElementById('hd-line-col');
+    if(hdCol) hdCol.style.width = _cachedHdWidth + 'px';
   });
 }
 
@@ -2003,6 +2050,7 @@ window.switchTab=function(tab){
       startCinematic();
     }
     window.addEventListener('resize', fitPnameTexts);
+    window.addEventListener('resize', ()=>{ calcGlobalHdWidth(); fitLineNos(); });
   } else { stopListener(); stopCinematic(); window.removeEventListener('resize', fitPnameTexts); }
 };
 
