@@ -114,11 +114,11 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 /* メインビューを上下分割：行リスト + フロアマップ */
 .view-main{position:relative;z-index:1;flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%;perspective:1200px;perspective-origin:50% 40%}
 .view-page{flex:40;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:4px;padding:4px;background:rgba(120,180,255,.18)}
-.floor-map-wrap{flex:55;min-height:0;border-top:2px solid rgba(120,180,255,.35);background:rgba(2,10,35,.9);display:flex;flex-direction:column;overflow:hidden}
-.floor-map-title{flex-shrink:0;padding:4px 12px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#9fd0ff;background:rgba(10,30,80,.6);border-bottom:1px solid rgba(120,180,255,.2);display:flex;align-items:center;justify-content:space-between}
-.edit-mode-btn{padding:3px 12px;border:1px solid rgba(160,210,255,.45);border-radius:6px;background:rgba(160,210,255,.12);font-size:12px;cursor:pointer;color:#aed8ff;font-weight:600;transition:all .15s;white-space:nowrap}
-.edit-mode-btn:hover{background:rgba(160,210,255,.25);color:#cceeff}
-.edit-mode-btn.active{background:rgba(29,158,117,.35);border-color:rgba(29,200,140,.6);color:#3dffb0}
+.floor-map-wrap{flex:55;min-height:0;border-top:2px solid rgba(180,140,80,.4);background:#f5f0e8;display:flex;flex-direction:column;overflow:hidden}
+.floor-map-title{flex-shrink:0;padding:4px 12px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#5a4a2a;background:rgba(220,200,160,.5);border-bottom:1px solid rgba(180,140,80,.3);display:flex;align-items:center;justify-content:space-between}
+.edit-mode-btn{padding:3px 12px;border:1px solid rgba(120,100,60,.4);border-radius:6px;background:rgba(200,185,150,.25);font-size:12px;cursor:pointer;color:#5a4a2a;font-weight:600;transition:all .15s;white-space:nowrap}
+.edit-mode-btn:hover{background:rgba(200,185,150,.45);color:#3a2a10}
+.edit-mode-btn.active{background:rgba(255,103,0,.2);border-color:rgba(255,103,0,.6);color:#b84a00}
 .edit-panel{position:absolute;right:16px;bottom:calc(30% + 8px);z-index:50;background:rgba(5,20,60,.95);border:1px solid rgba(120,180,255,.4);border-radius:12px;padding:14px 16px;min-width:180px;box-shadow:0 4px 24px rgba(0,0,0,.5);display:none;flex-direction:column;gap:10px}
 .edit-panel.show{display:flex}
 .edit-panel-title{font-size:13px;font-weight:700;color:#aed8ff;letter-spacing:.06em;padding-bottom:6px;border-bottom:1px solid rgba(120,180,255,.2)}
@@ -222,7 +222,7 @@ svg.map-revealed .map-label-overlay{
 /* 品名テキスト */
 .prow-name{display:flex;align-items:center;gap:4px;color:#e8f4ff;font-weight:600;overflow:hidden;min-width:0}
 .prow-name strong{flex-shrink:0;line-height:1;white-space:nowrap}
-.prow-name .pname-text{font-size:26px !important;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.prow-name .pname-text{font-size:13px !important;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .prow-sub-label{font-size:10px;color:#6a9fd8;font-weight:600;letter-spacing:.04em;line-height:1;margin-bottom:2px}
 .prow-sub-badges{display:flex;gap:3px;flex-wrap:nowrap;flex-direction:row}
 .prow-sub{display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -230,8 +230,8 @@ svg.map-revealed .map-label-overlay{
 .prow-empty{display:flex;justify-content:center;align-items:center;padding:8px;grid-column:1/-1}
 .prow-empty .prow-name{opacity:.25;font-size:13px}
 .proc-empty{color:#2a4060;font-size:12px}
-.proc-tag{font-size:18px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 8px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;min-width:52px;text-align:center}
-.cbadge{font-size:18px;padding:1px 6px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;min-width:76px;text-align:center;box-sizing:border-box}
+.proc-tag{font-size:9px;color:#ffe066;background:rgba(255,220,50,.13);border:1px solid rgba(255,220,50,.5);padding:1px 8px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;min-width:52px;text-align:center}
+.cbadge{font-size:9px;padding:1px 6px;border-radius:4px;white-space:nowrap;display:inline-block;font-weight:600;min-width:76px;text-align:center;box-sizing:border-box}
 .cb-on{background:rgba(255,180,200,.15);color:#ffb3c6;border:1px solid rgba(255,160,185,.5)}
 .cb-off{background:rgba(255,255,255,.04);color:#2a4060;border:1px solid rgba(255,255,255,.06)}
 .next-badge{font-size:14px;color:#7df4ff;background:rgba(100,230,255,.1);border:1px solid rgba(100,230,255,.3);padding:2px 7px;border-radius:3px;white-space:nowrap;display:inline-block;font-weight:600}
@@ -444,14 +444,21 @@ input,textarea{-webkit-user-select:text;user-select:text}
   min-height:0!important;
   border-top:none!important;
 }
-.view-page{transition:opacity .55s ease,transform .6s cubic-bezier(.22,1,.36,1)}
-.floor-map-wrap{transition:opacity .75s ease}
+/* GPU合成のみ使うtransition（opacity+transformはcompositor層で動く） */
+.view-page{
+  will-change:opacity,transform;
+  transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);
+}
+.floor-map-wrap{
+  will-change:opacity;
+  transition:opacity .7s cubic-bezier(.4,0,.2,1);
+}
 
 /* ── Phase: マップ全画面 ── */
 .view-main.cine-map .view-page{
   opacity:0!important;
   pointer-events:none!important;
-  transform:scale(1.08) translateY(-30px);
+  transform:translateY(24px) scale(.97);
   overflow:hidden!important;
 }
 .view-main.cine-map .floor-map-wrap{
@@ -465,10 +472,10 @@ input,textarea{-webkit-user-select:text;user-select:text}
   max-height:0;overflow:hidden;padding:0;
 }
 
-/* ── Phase: カード飛び出し ── */
+/* ── Phase: カード表示 ── */
 .view-main.cine-cards .view-page{
   opacity:1!important;
-  transform:none;
+  transform:translateY(0) scale(1);
   pointer-events:auto;
   z-index:2;
   overflow-y:auto!important;
@@ -488,16 +495,14 @@ input,textarea{-webkit-user-select:text;user-select:text}
   display:block;width:100%;height:100%;
 }
 
-/* ── カード上から順に飛び出しアニメーション ── */
-@keyframes cardBlastIn{
-  0%  {opacity:0;transform:scale(1.08) translateY(-40px) translateZ(40px);filter:brightness(1.5)}
-  60% {opacity:1;filter:brightness(1.05)}
-  82% {transform:scale(.99) translateY(4px) translateZ(-2px)}
-  100%{transform:scale(1) translateY(0) translateZ(0);filter:brightness(1)}
+/* ── カード上から順にフェードスライドイン（filterなし・GPU合成のみ） ── */
+@keyframes cardSlideIn{
+  0%  {opacity:0;transform:translateY(-20px) scale(.97)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
 }
 .view-main.cine-cards .vline{
-  animation:cardBlastIn .55s cubic-bezier(.22,1,.36,1) both;
-  /* 遅延はJSでvline毎にinlineで設定するためここでは0sのまま */
+  will-change:opacity,transform;
+  animation:cardSlideIn .5s cubic-bezier(.22,1,.36,1) both;
   animation-delay:0s;
 }
 </style>
@@ -562,10 +567,34 @@ input,textarea{-webkit-user-select:text;user-select:text}
     <div class="card">
       <div class="card-title">基本情報</div>
       <div class="row">
-        <div class="field field-sm">
+        <div class="field" id="lineNo-field-wrap" style="min-width:180px;flex:2;position:relative">
           <label>ライン No. ＊</label>
-          <input type="text" id="lineNo" list="dl-lineNo" placeholder="例：A-01" autocomplete="off" oninput="onLineNoInput()">
-          <datalist id="dl-lineNo"></datalist>
+          <!-- カスタムドロップダウン -->
+          <div id="lineNo-dropdown" style="position:relative;user-select:none">
+            <div id="lineNo-display"
+              onclick="toggleLineNoDropdown()"
+              style="height:36px;padding:0 32px 0 10px;border:1px solid #d0d0d0;border-radius:7px;
+                     font-size:14px;background:#fafafa;color:#222;cursor:pointer;display:flex;
+                     align-items:center;position:relative;transition:border-color .15s;box-sizing:border-box">
+              <span id="lineNo-display-text" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#aaa">-- ライン選択 --</span>
+              <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#888;font-size:11px;pointer-events:none">▼</span>
+            </div>
+            <div id="lineNo-list"
+              style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;
+                     background:#fff;border:1px solid #d0d0d0;border-radius:7px;
+                     box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:9999;
+                     max-height:260px;overflow-y:auto;overflow-x:hidden">
+              <div id="lineNo-list-inner"></div>
+            </div>
+          </div>
+          <!-- 新規入力欄 -->
+          <div id="lineNo-new-wrap" style="display:none;margin-top:4px">
+            <input type="text" id="lineNo" placeholder="例：A-01（新規）" autocomplete="off"
+              style="height:36px;padding:0 10px;border:1.5px solid #1D9E75;border-radius:7px;font-size:14px;background:#fff;width:100%;box-sizing:border-box"
+              oninput="onLineNoInput()">
+          </div>
+          <!-- 隠しinput -->
+          <input type="hidden" id="lineNo-hidden">
         </div>
         <div class="field field-lg">
           <label>更新者名（自動）</label>
@@ -869,7 +898,7 @@ function buildFloorMap(activeLineNos){
     // 最初は常に通常色。2秒後にJS側でsvgに.map-revealedを付けてCSSで水色に切替。
     const topFill   = cell.type==='line' ? 'url(#gradLineTop)'   : 'url(#gradAuxTop)';
     const frontFill = cell.type==='line' ? 'url(#gradLineFront)' : 'url(#gradAuxFront)';
-    const stroke    = cell.type==='line' ? 'rgba(120,180,255,.5)' : 'rgba(100,150,210,.25)';
+    const stroke    = cell.type==='line' ? 'rgba(150,153,165,.8)' : 'rgba(180,175,162,.5)';
     const sw        = 1;
 
     const topPts = [
@@ -890,17 +919,17 @@ function buildFloorMap(activeLineNos){
     shapes += `<polygon points="${frontPts}" fill="${frontFill}" stroke="${stroke}" stroke-width="${sw*0.7}" class="map-front"${activeAttr}/>`;
     if(active){
       // アクティブ色オーバーレイ（opacity:0→1 でフェードイン）
-      shapes += `<polygon points="${topPts}" fill="url(#gradActiveTop)" stroke="#7df4ff" stroke-width="2.5" class="map-overlay map-overlay-top" opacity="0"/>`;
-      shapes += `<polygon points="${frontPts}" fill="url(#gradActiveFront)" stroke="#7df4ff" stroke-width="1.75" class="map-overlay map-overlay-front" opacity="0"/>`;
+      shapes += `<polygon points="${topPts}" fill="url(#gradActiveTop)" stroke="#ff6600" stroke-width="2.5" class="map-overlay map-overlay-top" opacity="0"/>`;
+      shapes += `<polygon points="${frontPts}" fill="url(#gradActiveFront)" stroke="#ff6600" stroke-width="1.75" class="map-overlay map-overlay-front" opacity="0"/>`;
     }
     const cx = px + pw/2 - 3;
     const cy = py + (ph-DEPTH)/2;
     const fontSize = cell.label.length>5 ? 12 : 14;
     const cellIdx = FLOOR_CELLS.indexOf(cell);
-    labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="${cell.type==='line'?'#cfe6ff':'#5f8fc0'}" data-cellidx="${cellIdx}" class="map-label"${activeAttr} style="cursor:${editPanelOpen?'pointer':'default'}" onclick="inlineEditMapLabel(event,${cellIdx})">${cell.label}</text>`;
+    labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="700" fill="${cell.type==='line'?'#2a2d3a':'#7a7060'}" data-cellidx="${cellIdx}" class="map-label"${activeAttr} style="cursor:${editPanelOpen?'pointer':'default'}" onclick="inlineEditMapLabel(event,${cellIdx})">${cell.label}</text>`;
     if(active){
       // 白テキストオーバーレイ（フェードイン用）
-      labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="800" fill="#ffffff" class="map-label-overlay" opacity="0" style="pointer-events:none">${cell.label}</text>`;
+      labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="900" fill="#1a0a00" class="map-label-overlay" opacity="0" style="pointer-events:none">${cell.label}</text>`;
     }
 
   });
@@ -910,35 +939,44 @@ function buildFloorMap(activeLineNos){
   const totalW = maxX + 30;
   const totalH = maxY + 30;
 
-  return `<svg viewBox="0 0 ${totalW.toFixed(0)} ${totalH.toFixed(0)}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg viewBox="0 0 ${totalW.toFixed(0)} ${totalH.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="background:#f5f0e8">
     <defs>
+      <!-- ラインBOX上面：ライトグレー -->
       <linearGradient id="gradLineTop" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(50,95,180,.6)"/>
-        <stop offset="1" stop-color="rgba(30,65,135,.6)"/>
+        <stop offset="0" stop-color="rgba(210,212,218,1)"/>
+        <stop offset="1" stop-color="rgba(185,188,196,1)"/>
       </linearGradient>
+      <!-- ラインBOX前面：やや濃いグレー（立体感） -->
       <linearGradient id="gradLineFront" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(20,45,95,.65)"/>
-        <stop offset="1" stop-color="rgba(10,25,60,.7)"/>
+        <stop offset="0" stop-color="rgba(160,163,172,1)"/>
+        <stop offset="1" stop-color="rgba(140,143,152,1)"/>
       </linearGradient>
+      <!-- アクティブ上面：セーフティオレンジ -->
       <linearGradient id="gradActiveTop" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(160,245,255,1)"/>
-        <stop offset="1" stop-color="rgba(80,195,255,1)"/>
+        <stop offset="0" stop-color="rgba(255,165,0,1)"/>
+        <stop offset="1" stop-color="rgba(255,103,0,1)"/>
       </linearGradient>
+      <!-- アクティブ前面：セーフティオレンジ（濃） -->
       <linearGradient id="gradActiveFront" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(60,170,240,1)"/>
-        <stop offset="1" stop-color="rgba(30,120,200,1)"/>
+        <stop offset="0" stop-color="rgba(220,88,0,1)"/>
+        <stop offset="1" stop-color="rgba(180,60,0,1)"/>
       </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      <!-- セーフティオレンジ発光フィルター -->
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feFlood flood-color="rgba(255,120,0,.7)" result="color"/>
+        <feComposite in="color" in2="blur" operator="in" result="colorBlur"/>
+        <feMerge><feMergeNode in="colorBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
+      <!-- 補助エリア上面：クリーム寄りの薄いグレー -->
       <linearGradient id="gradAuxTop" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(25,40,75,.5)"/>
-        <stop offset="1" stop-color="rgba(15,28,58,.5)"/>
+        <stop offset="0" stop-color="rgba(232,228,218,.75)"/>
+        <stop offset="1" stop-color="rgba(215,210,198,.75)"/>
       </linearGradient>
+      <!-- 補助エリア前面 -->
       <linearGradient id="gradAuxFront" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(12,22,48,.55)"/>
-        <stop offset="1" stop-color="rgba(6,12,32,.6)"/>
+        <stop offset="0" stop-color="rgba(200,196,184,.8)"/>
+        <stop offset="1" stop-color="rgba(185,180,168,.8)"/>
       </linearGradient>
     </defs>
     ${shapes}
@@ -991,6 +1029,23 @@ function refreshAllDL(){ ALL_FIELDS.forEach(([fk,dl])=>buildDL(fk,dl)); }
 
 /* ===== フォーム操作 ===== */
 function v(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+/* ラインNo.は select か hidden か テキスト入力 のいずれかから取得 */
+function getLineNoValue(){
+  const wrap = document.getElementById('lineNo-new-wrap');
+  const newVisible = wrap && wrap.style.display !== 'none';
+  if(newVisible){
+    // 新規テキスト入力モード
+    const inp = document.getElementById('lineNo');
+    return inp ? inp.value.trim() : '';
+  }
+  // セレクト選択モード
+  const hidden = document.getElementById('lineNo-hidden');
+  const sel = document.getElementById('lineNo-select');
+  const hv = hidden ? hidden.value.trim() : '';
+  if(hv && hv !== '__new__') return hv;
+  const sv = sel ? sel.value.trim() : '';
+  return (sv && sv !== '__new__') ? sv : '';
+}
 function chk(id){ const e=document.getElementById(id); return e?e.checked:false; }
 function setV(id,val){ const e=document.getElementById(id); if(e) e.value=val||''; }
 function setChk(id,val){ const e=document.getElementById(id); if(e) e.checked=!!val; }
@@ -1025,6 +1080,132 @@ function clearProductAndNext(){
   }
 }
 
+/* ===== ラインNo. カスタムドロップダウン ===== */
+let _lineNoDropdownOpen = false;
+
+function updateLineNoSelect(){
+  const inner = document.getElementById('lineNo-list-inner');
+  if(!inner) return;
+  const curVal = document.getElementById('lineNo-hidden').value;
+
+  let html = '';
+  // 「-- ライン選択 --」ヘッダー行
+  html += `<div onclick="onLineNoSelectChange('')"
+    style="padding:8px 14px;font-size:13px;font-weight:700;color:#555;
+           background:#e8edf2;cursor:pointer;border-bottom:1px solid #e0e0e0">
+    -- ライン選択 --
+  </div>`;
+
+  // 登録済みラインの一覧
+  allLines.forEach(l=>{
+    const no = l.lineNo || '';
+    if(!no) return;
+    const label = /^\d+$/.test(no) ? no + 'L' : no;
+    const isSelected = (no === curVal);
+    html += `<div onclick="onLineNoSelectChange('${no.replace(/'/g,"\'")}')"
+      style="padding:10px 14px;font-size:14px;cursor:pointer;color:${isSelected?'#1D9E75':'#222'};
+             font-weight:${isSelected?'700':'400'};background:${isSelected?'#e8f9f3':'#fff'};
+             border-bottom:1px solid #f0f0f0;transition:background .1s"
+      onmouseover="this.style.background='${isSelected?'#d0f0e4':'#f5f8ff'}'"
+      onmouseout="this.style.background='${isSelected?'#e8f9f3':'#fff'}'">
+      ${label}
+    </div>`;
+  });
+
+  // 「＋ 新規ライン番号を入力」行
+  html += `<div onclick="onLineNoSelectChange('__new__')"
+    style="padding:10px 14px;font-size:13px;font-weight:700;color:#1D9E75;
+           background:#f0fdf7;cursor:pointer;border-top:2px solid #d0f0e4"
+    onmouseover="this.style.background='#d8f5ea'"
+    onmouseout="this.style.background='#f0fdf7'">
+    ＋ 新規ライン番号を入力…
+  </div>`;
+
+  inner.innerHTML = html;
+}
+
+window.toggleLineNoDropdown = function(){
+  const list = document.getElementById('lineNo-list');
+  const disp = document.getElementById('lineNo-display');
+  if(!list) return;
+  _lineNoDropdownOpen = !_lineNoDropdownOpen;
+  list.style.display = _lineNoDropdownOpen ? 'block' : 'none';
+  if(disp) disp.style.borderColor = _lineNoDropdownOpen ? '#1D9E75' : '#d0d0d0';
+  if(_lineNoDropdownOpen){
+    updateLineNoSelect(); // 開くたびに最新リストを構築
+    // 選択済みアイテムまでスクロール
+    setTimeout(()=>{
+      const sel = list.querySelector('[style*="e8f9f3"]');
+      if(sel) sel.scrollIntoView({block:'nearest'});
+    }, 30);
+  }
+};
+
+function closeLineNoDropdown(){
+  _lineNoDropdownOpen = false;
+  const list = document.getElementById('lineNo-list');
+  const disp = document.getElementById('lineNo-display');
+  if(list) list.style.display = 'none';
+  if(disp) disp.style.borderColor = '#d0d0d0';
+}
+
+// ドロップダウン外クリックで閉じる
+document.addEventListener('click', function(e){
+  const dd = document.getElementById('lineNo-dropdown');
+  if(dd && !dd.contains(e.target)) closeLineNoDropdown();
+});
+
+window.onLineNoSelectChange = function(val){
+  closeLineNoDropdown();
+  if(val === '__new__'){
+    // 新規入力モードへ
+    document.getElementById('lineNo-new-wrap').style.display = 'block';
+    document.getElementById('lineNo-hidden').value = '';
+    document.getElementById('lineNo-display-text').textContent = '-- ライン選択 --';
+    document.getElementById('lineNo-display-text').style.color = '#aaa';
+    document.getElementById('lineNo').value = '';
+    document.getElementById('lineNo').focus();
+    prevLineNo = '';
+    clearProductAndNext();
+    showBanner('');
+    return;
+  }
+  if(!val){
+    document.getElementById('lineNo-hidden').value = '';
+    document.getElementById('lineNo-display-text').textContent = '-- ライン選択 --';
+    document.getElementById('lineNo-display-text').style.color = '#aaa';
+    document.getElementById('lineNo-new-wrap').style.display = 'none';
+    prevLineNo = '';
+    clearProductAndNext();
+    showBanner('');
+    return;
+  }
+  // 既存ライン選択
+  document.getElementById('lineNo-hidden').value = val;
+  const label = /^\d+$/.test(val) ? val + 'L' : val;
+  document.getElementById('lineNo-display-text').textContent = label;
+  document.getElementById('lineNo-display-text').style.color = '#222';
+  document.getElementById('lineNo-new-wrap').style.display = 'none';
+  prevLineNo = val;
+  clearProductAndNext();
+  showBanner('');
+  setTimeout(async ()=>{
+    try{
+      const snap = await getDoc(doc(db, COL, toDocId(val)));
+      if(snap.exists()){
+        fillForm(snap.data());
+        showBanner('ライン ' + val + ' の既存データを読み込みました（上書き更新モード）');
+      } else {
+        showBanner('新規ライン ' + val + ' として登録します');
+      }
+    }catch(e){}
+  }, 0);
+};
+
+window.toggleNewLineInput = function(){
+  onLineNoSelectChange('__new__');
+};
+
 /* ライン No. 入力→前回データ自動ロード
    ラインNoが変わるたびに毎回Firestoreを検索。
    既存データがあれば読み込み、なければ空欄のまま新規入力モード。
@@ -1035,7 +1216,7 @@ let lineTimer=null;
 let prevLineNo=''; // 直前のラインNo（変化検知用）
 
 window.onLineNoInput = function(){
-  const lineNo=v('lineNo');
+  const lineNo=getLineNoValue();
   clearTimeout(lineTimer);
   showBanner('');
   if(!lineNo){
@@ -1071,6 +1252,14 @@ function toDocId(lineNo){
 }
 
 window.resetForm = function(){
+  // カスタムドロップダウンをリセット
+  closeLineNoDropdown();
+  const dispTxt = document.getElementById('lineNo-display-text');
+  if(dispTxt){ dispTxt.textContent='-- ライン選択 --'; dispTxt.style.color='#aaa'; }
+  const wrap = document.getElementById('lineNo-new-wrap');
+  if(wrap) wrap.style.display = 'none';
+  const hidden = document.getElementById('lineNo-hidden');
+  if(hidden) hidden.value = '';
   setV('lineNo','');
   // updaterはログイン者名を維持
   clearProductAndNext(); showBanner('');
@@ -1088,7 +1277,7 @@ function showToast(msg,ok){
 
 window.saveData = async function(){
   showErr('');
-  const lineNo=v('lineNo');
+  const lineNo=getLineNoValue();
   if(!lineNo){ showErr('ライン No. を入力してください。'); return; }
   const btn=document.getElementById('btn-save');
   btn.disabled=true; btn.textContent='保存中…';
@@ -1109,6 +1298,15 @@ window.saveData = async function(){
     showToast('ライン '+lineNo+' を保存しました ✓',true);
     showBanner('ライン '+lineNo+' を保存しました（上書き更新モード継続中）');
     prevLineNo=lineNo;
+    // 新規入力モードで保存した場合、テキスト欄を閉じてドロップダウン表示を更新
+    const _wrap = document.getElementById('lineNo-new-wrap');
+    if(_wrap && _wrap.style.display !== 'none'){
+      _wrap.style.display = 'none';
+      document.getElementById('lineNo-hidden').value = lineNo;
+      const _label = /^\d+$/.test(lineNo) ? lineNo + 'L' : lineNo;
+      const _dt = document.getElementById('lineNo-display-text');
+      if(_dt){ _dt.textContent = _label; _dt.style.color = '#222'; }
+    }
   }catch(e){
     showToast('保存エラー：'+(e.message||String(e)),false);
     showErr('Firebase保存エラー：'+(e.message||String(e)));
@@ -1431,7 +1629,7 @@ function renderPage(pageIdx){
     // 稼働製品行：品名 | 工程 | 中間検査 | NEXT生産 の4列構造
     const activeProdCount = Math.max(3, allProds.filter(p=>p&&p.name).length);
     const displayCount = Math.min(activeProdCount, 5);
-    const pnameFontSize = 26;
+    const pnameFontSize = 13;
     const pmarkFontSize = displayCount <= 3 ? 22 : displayCount === 4 ? 15 : 12;
     const filledProds = MARKS.slice(0,displayCount).map((mark,i)=>({mark, p:allProds[i]||{}, n:allNexts[i]||{}}));
     const isMob = window.innerWidth <= 600;
@@ -1523,12 +1721,12 @@ function renderPage(pageIdx){
         <div class="prow-col-next" style="display:flex;flex-direction:row;align-items:stretch;padding:0;gap:0;min-width:0">
           <div style="display:flex;align-items:center;padding:4px 10px;flex:1;min-width:0" onclick="inlineEditCell(event,'${docId}',${rowIdx},'nname',this)" style="cursor:pointer">
             ${n.name
-              ? `<span style="font-size:26px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1">${n.name}</span>`
+              ? `<span style="font-size:13px;color:#9fe3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1">${n.name}</span>`
               : '<span style="font-size:13px;color:rgba(160,210,255,.4)">—</span>'
             }
           </div>
           <div style="display:flex;align-items:center;justify-content:center;width:80px;box-sizing:border-box;flex-shrink:0;border-left:1px solid ${empty?'rgba(120,200,255,.3)':'rgba(255,255,255,.7)'};" onclick="inlineEditCell(event,'${docId}',${rowIdx},'nproc',this)" style="cursor:pointer">
-            ${nextProc?`<span class='proc-tag' style='color:#7df4ff;border-color:rgba(100,230,255,.4);font-size:18px'>${nextProc}</span>`:''}
+            ${nextProc?`<span class='proc-tag' style='color:#7df4ff;border-color:rgba(100,230,255,.4);font-size:9px'>${nextProc}</span>`:''}
           </div>
         </div>
       </div>`;
@@ -1594,7 +1792,7 @@ function renderPage(pageIdx){
 function fitPnameTexts(){
   requestAnimationFrame(()=>{
     document.querySelectorAll('#view-body .pname-text').forEach(span=>{
-      span.style.fontSize = '26px';
+      span.style.fontSize = '13px';
       span.style.whiteSpace = 'nowrap';
     });
   });
@@ -1739,36 +1937,48 @@ function runCinematicLoop(){
   cinemPage=pi;
   currentPage=pi;
 
-  // ── Phase1開始：マップを全画面に切り替え ──
-  vm.classList.remove('cine-cards');
-  vm.classList.add('cine-map');
+  // ── Phase1開始：まずカードをフェードアウト ──
+  // cine-map クラスを付ける前に rAF を1枚挟んでペイントを確定させる
+  requestAnimationFrame(()=>{
+    vm.classList.remove('cine-cards');
 
-  // 旧ページのマップハイライトをトランジションなしで即時消去
-  const svgNow=document.querySelector('#floor-map-svg-wrap svg');
-  if(svgNow){
-    svgNow.classList.remove('map-revealed');
-    svgNow.querySelectorAll('.map-overlay,.map-label-overlay').forEach(el=>{
-      el.style.transition='none';
-      el.style.opacity='0';
+    // 旧SVGのハイライトをtransitionなしで即時消去
+    const svgNow=document.querySelector('#floor-map-svg-wrap svg');
+    if(svgNow){
+      svgNow.classList.remove('map-revealed');
+      svgNow.querySelectorAll('.map-overlay,.map-label-overlay').forEach(el=>{
+        el.style.transition='none';
+        el.style.opacity='0';
+      });
+    }
+
+    // もう1フレーム後にcine-mapを付ける（remove→addを同フレームにしない）
+    requestAnimationFrame(()=>{
+      vm.classList.add('cine-map');
+
+      // transition(.7s)完了後にDOMを差し替え（=transition中はrenderPageを呼ばない）
+      setTimeout(()=>{
+        renderPage(pi);
+        // 1.5秒後にアクティブセルを水色フェードイン
+        setTimeout(()=>{
+          const svg2=document.querySelector('#floor-map-svg-wrap svg');
+          if(svg2) svg2.classList.add('map-revealed');
+        },1500);
+      },750);
     });
-  }
-
-  // カードのフェードアウト(0.7s)が終わってからデータ差し替え
-  setTimeout(()=>{
-    renderPage(pi);
-    // 2秒後にアクティブセルを水色フェードイン
-    setTimeout(()=>{
-      const svg2=document.querySelector('#floor-map-svg-wrap svg');
-      if(svg2) svg2.classList.add('map-revealed');
-    },2000);
-  },700);
+  });
 
   // Phase1終了(5.5秒後) → Phase2(カード表示)へ
   cinemTimer=setTimeout(()=>{
     cinemTimer=null;
+    // cine-mapを外してから1フレーム後にcine-cardsを付ける
     vm.classList.remove('cine-map');
-    vm.classList.add('cine-cards');
-    requestAnimationFrame(()=>fitPnameTexts());
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        vm.classList.add('cine-cards');
+        fitPnameTexts();
+      });
+    });
 
     // Phase2終了(15秒後) → 次ページ(pi+1)のPhase1へ
     cinemTimer=setTimeout(()=>{
@@ -1825,6 +2035,7 @@ function renderLines(lines){
   }
   allLines=sortLines([...seen.values()]);
   calcGlobalHdWidth(); // 全ページ通じた統一幅をここで計算
+  updateLineNoSelect(); // ラインNo.セレクトを最新ラインリストで更新
   renderMobLineFilter();
   if(editPanelOpen){ renderPage(currentPage); renderEditPanel(); return; }
   // 手動モード中は常にcurrentPageで再描画
@@ -1833,15 +2044,14 @@ function renderLines(lines){
   if(cinemTimer != null){
     // 現在のcinemPageでデータだけ静かに再描画（クラスは変えない）
     renderPage(cinemPage);
-    // ★ cine-cards フェーズ中（Phase2）は再描画で新 .vline に cardBlastIn が
-    //    即トリガーされてしまうため、animation を none で抑制して即表示させる
+    // cine-cards フェーズ中は再描画で新 .vline に cardSlideIn が
+    // 即トリガーされてしまうため、animation を none で抑制して即表示させる
     const _vm = document.getElementById('view-main');
     if(_vm && _vm.classList.contains('cine-cards')){
       document.querySelectorAll('#view-body .vline').forEach(v=>{
         v.style.animation = 'none';
         v.style.opacity   = '1';
         v.style.transform = 'none';
-        v.style.filter    = 'none';
       });
     }
   } else {
@@ -1941,6 +2151,40 @@ async function migrateOldDocIds(){
 
 /* ===== Firestore リアルタイムリスナー ===== */
 let unsubscribe=null;
+/* ===== 入力タブ用の常時ラインリスナー =====
+   閲覧タブを開かなくても、ログイン直後からドロップダウンにラインを反映させる。
+   startListener()（閲覧用）と共存する。閲覧用が起動すると同じsnapshotで
+   allLinesが更新されるため、両者で二重更新になってもupdateLineNoSelectは冪等。 */
+let inputUnsubscribe = null;
+
+function startInputListener(){
+  if(inputUnsubscribe) return; // 既に起動中
+  const q = query(collection(db, COL));
+  inputUnsubscribe = onSnapshot(q,
+    (snapshot) => {
+      const lines = [];
+      snapshot.forEach(d => lines.push({...d.data(), _id: d.id}));
+      // allLines を更新してドロップダウンを再構築（閲覧タブのrenderLinesとは独立）
+      const seen = new Map();
+      for(const l of lines){
+        const key = (l.lineNo||'').trim();
+        if(!key) continue;
+        const existing = seen.get(key);
+        if(!existing || (l.updatedAt||'') > (existing.updatedAt||'')){
+          seen.set(key, l);
+        }
+      }
+      allLines = sortLines([...seen.values()]);
+      updateLineNoSelect();
+    },
+    (err) => { console.warn('[inputListener]', err.message); }
+  );
+}
+
+function stopInputListener(){
+  if(inputUnsubscribe){ inputUnsubscribe(); inputUnsubscribe=null; }
+}
+
 function startListener(){
   if(unsubscribe) return;
   const q=query(collection(db,COL));
@@ -2116,10 +2360,13 @@ onAuthStateChanged(auth,user=>{
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
+    // 入力タブでもドロップダウンにラインを即反映させるため、ログイン直後に起動
+    startInputListener();
     setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
   }else{
     currentUser=null;
     stopListener();
+    stopInputListener();
     document.getElementById('login-screen').style.display='flex';
     document.getElementById('main-app').style.display='none';
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
