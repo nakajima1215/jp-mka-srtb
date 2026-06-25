@@ -111,9 +111,9 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .page-dot.active{background:#aed8ff;box-shadow:0 0 6px rgba(160,210,255,.6)}
 
 /* メインビューを上下分割：行リスト + フロアマップ */
-.view-main{position:relative;z-index:1;flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%}
-.view-page{flex:65;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:4px;padding:4px;background:rgba(120,180,255,.18)}
-.floor-map-wrap{flex:30;min-height:0;border-top:2px solid rgba(120,180,255,.35);background:rgba(2,10,35,.9);display:flex;flex-direction:column;overflow:hidden}
+.view-main{position:relative;z-index:1;flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%;perspective:1200px;perspective-origin:50% 40%}
+.view-page{flex:40;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:4px;padding:4px;background:rgba(120,180,255,.18)}
+.floor-map-wrap{flex:55;min-height:0;border-top:2px solid rgba(120,180,255,.35);background:rgba(2,10,35,.9);display:flex;flex-direction:column;overflow:hidden}
 .floor-map-title{flex-shrink:0;padding:4px 12px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#9fd0ff;background:rgba(10,30,80,.6);border-bottom:1px solid rgba(120,180,255,.2);display:flex;align-items:center;justify-content:space-between}
 .edit-mode-btn{padding:3px 12px;border:1px solid rgba(160,210,255,.45);border-radius:6px;background:rgba(160,210,255,.12);font-size:12px;cursor:pointer;color:#aed8ff;font-weight:600;transition:all .15s;white-space:nowrap}
 .edit-mode-btn:hover{background:rgba(160,210,255,.25);color:#cceeff}
@@ -144,7 +144,23 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .edit-section-title{font-size:12px;font-weight:700;color:#9fd0ff;letter-spacing:.08em;margin-top:8px;padding-bottom:4px;border-bottom:1px solid rgba(120,180,255,.2)}
 .floor-map-svg-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:4px}
 .floor-map-svg-wrap svg{width:100%;height:100%;max-height:100%}
-.active-cell{filter:drop-shadow(0 0 10px rgba(125,244,255,.95)) drop-shadow(0 0 20px rgba(80,200,255,.7))}
+/* ===== フロアマップ アクティブ色フェードイン =====
+   アクティブセルの上に水色オーバーレイpolygon(opacity:0)を重ねておき、
+   2秒後にJSで svg に .map-revealed を付与 → opacity が 0→1 にtransitionする。
+   fillそのものはtransitionできないが、opacityは確実に効く。 */
+
+svg .map-overlay{
+  transition: opacity 1.2s ease;
+}
+svg.map-revealed .map-overlay{
+  opacity: 1 !important;
+}
+svg .map-label-overlay{
+  transition: opacity 1.2s ease;
+}
+svg.map-revealed .map-label-overlay{
+  opacity: 1 !important;
+}
 
 /* ラインの行 */
 .vline{
@@ -413,6 +429,79 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 /* テキスト選択・コピーUI無効化 */
 *{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 input,textarea{-webkit-user-select:text;user-select:text}
+
+/* ===== シネマティックモード ===== */
+
+/* view-page と floor-map-wrap を絶対配置で重ねる */
+.view-page,
+.floor-map-wrap{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  flex:none!important;
+  min-height:0!important;
+  border-top:none!important;
+}
+.view-page{transition:opacity .55s ease,transform .6s cubic-bezier(.22,1,.36,1)}
+.floor-map-wrap{transition:opacity .75s ease}
+
+/* ── Phase: マップ全画面 ── */
+.view-main.cine-map .view-page{
+  opacity:0!important;
+  pointer-events:none!important;
+  transform:scale(1.08) translateY(-30px);
+  overflow:hidden!important;
+}
+.view-main.cine-map .floor-map-wrap{
+  opacity:1!important;
+  pointer-events:auto;
+  z-index:2;
+}
+.view-main.cine-map .floor-map-title{
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+  max-height:0;overflow:hidden;padding:0;
+}
+
+/* ── Phase: カード飛び出し ── */
+.view-main.cine-cards .view-page{
+  opacity:1!important;
+  transform:none;
+  pointer-events:auto;
+  z-index:2;
+  overflow-y:auto!important;
+}
+.view-main.cine-cards .floor-map-wrap{
+  opacity:0!important;
+  pointer-events:none;
+  z-index:1;
+}
+.view-main.cine-cards .floor-map-title{
+  opacity:0;transition:opacity .2s;
+  max-height:0;overflow:hidden;padding:0;
+}
+
+/* マップ全画面中のSVGをアニメーション対応に */
+#floor-map-svg-wrap svg{
+  display:block;width:100%;height:100%;
+}
+
+/* ── カード上から順に飛び出しアニメーション ── */
+@keyframes cardBlastIn{
+  0%  {opacity:0;transform:scale(1.08) translateY(-40px) translateZ(40px);filter:brightness(1.5)}
+  60% {opacity:1;filter:brightness(1.05)}
+  82% {transform:scale(.99) translateY(4px) translateZ(-2px)}
+  100%{transform:scale(1) translateY(0) translateZ(0);filter:brightness(1)}
+}
+.view-main.cine-cards .vline{
+  animation:cardBlastIn .55s cubic-bezier(.22,1,.36,1) both;
+  animation-delay:0s;
+}
+.view-main.cine-cards .vline:nth-child(2){animation-delay:.13s}
+.view-main.cine-cards .vline:nth-child(3){animation-delay:.26s}
+.view-main.cine-cards .vline:nth-child(4){animation-delay:.39s}
+.view-main.cine-cards .vline:nth-child(5){animation-delay:.52s}
 </style>
   <!-- PWA -->
   <link rel="manifest" id="pwa-manifest">
@@ -477,11 +566,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="row">
         <div class="field field-sm">
           <label>ライン No. ＊</label>
-          <select id="lineNo-select" onchange="onLineSelectChange(this.value)"
-            style="width:100%;height:36px;padding:0 8px;border:1px solid #d0d0d0;border-radius:7px;font-size:14px;background:#fafafa;cursor:pointer;outline:none;transition:all .15s">
-            <option value="">-- ライン選択 --</option>
-          </select>
-          <input type="text" id="lineNo" autocomplete="off" oninput="onLineNoInput()" style="display:none">
+          <input type="text" id="lineNo" list="dl-lineNo" placeholder="例：A-01" autocomplete="off" oninput="onLineNoInput()">
+          <datalist id="dl-lineNo"></datalist>
         </div>
         <div class="field field-lg">
           <label>更新者名（自動）</label>
@@ -495,8 +581,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ①</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn1" list="dl-pn1" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn1"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="ps1" list="dl-ps1" placeholder="01" autocomplete="off"><datalist id="dl-ps1"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="pe1" list="dl-pe1" placeholder="05" autocomplete="off"><datalist id="dl-pe1"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps1" list="dl-ps1" placeholder="01" autocomplete="off"><datalist id="dl-ps1"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe1" list="dl-pe1" placeholder="05" autocomplete="off"><datalist id="dl-pe1"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_1"> 1回目</label><label><input type="checkbox" id="c2_1"> 2回目</label></div>
     </div>
@@ -504,8 +590,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ②</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn2" list="dl-pn2" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn2"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="ps2" list="dl-ps2" placeholder="01" autocomplete="off"><datalist id="dl-ps2"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="pe2" list="dl-pe2" placeholder="05" autocomplete="off"><datalist id="dl-pe2"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps2" list="dl-ps2" placeholder="01" autocomplete="off"><datalist id="dl-ps2"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe2" list="dl-pe2" placeholder="05" autocomplete="off"><datalist id="dl-pe2"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_2"> 1回目</label><label><input type="checkbox" id="c2_2"> 2回目</label></div>
     </div>
@@ -513,8 +599,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ③</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn3" list="dl-pn3" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn3"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="ps3" list="dl-ps3" placeholder="01" autocomplete="off"><datalist id="dl-ps3"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="pe3" list="dl-pe3" placeholder="05" autocomplete="off"><datalist id="dl-pe3"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps3" list="dl-ps3" placeholder="01" autocomplete="off"><datalist id="dl-ps3"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe3" list="dl-pe3" placeholder="05" autocomplete="off"><datalist id="dl-pe3"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_3"> 1回目</label><label><input type="checkbox" id="c2_3"> 2回目</label></div>
     </div>
@@ -522,8 +608,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ④</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn4" list="dl-pn4" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn4"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="ps4" list="dl-ps4" placeholder="01" autocomplete="off"><datalist id="dl-ps4"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="pe4" list="dl-pe4" placeholder="05" autocomplete="off"><datalist id="dl-pe4"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps4" list="dl-ps4" placeholder="01" autocomplete="off"><datalist id="dl-ps4"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe4" list="dl-pe4" placeholder="05" autocomplete="off"><datalist id="dl-pe4"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_4"> 1回目</label><label><input type="checkbox" id="c2_4"> 2回目</label></div>
     </div>
@@ -531,8 +617,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="card-title">品名 ⑤</div>
       <div class="row">
         <div class="field field-xl"><label>品名</label><input type="text" id="pn5" list="dl-pn5" placeholder="品名を入力" autocomplete="off"><datalist id="dl-pn5"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="ps5" list="dl-ps5" placeholder="01" autocomplete="off"><datalist id="dl-ps5"></datalist></div>
-        <div class="field field-sm"><label>工程</label><input type="text" id="pe5" list="dl-pe5" placeholder="05" autocomplete="off"><datalist id="dl-pe5"></datalist></div>
+        <div class="field field-sm"><label>工程 開始</label><input type="text" id="ps5" list="dl-ps5" placeholder="01" autocomplete="off"><datalist id="dl-ps5"></datalist></div>
+        <div class="field field-sm"><label>工程 終了</label><input type="text" id="pe5" list="dl-pe5" placeholder="05" autocomplete="off"><datalist id="dl-pe5"></datalist></div>
       </div>
       <div class="chk-row"><span class="chk-label">中間検査：</span><label><input type="checkbox" id="c1_5"> 1回目</label><label><input type="checkbox" id="c2_5"> 2回目</label></div>
     </div>
@@ -554,16 +640,6 @@ input,textarea{-webkit-user-select:text;user-select:text}
         <div class="field"><input type="text" id="nn3" list="dl-nn3" placeholder="品名③" autocomplete="off"><datalist id="dl-nn3"></datalist></div>
         <div class="field"><input type="text" id="nps3" list="dl-nps3" placeholder="01" autocomplete="off"><datalist id="dl-nps3"></datalist></div>
         <div class="field"><input type="text" id="npe3" list="dl-npe3" placeholder="05" autocomplete="off"><datalist id="dl-npe3"></datalist></div>
-      </div>
-      <div class="next-row">
-        <div class="field"><input type="text" id="nn4" list="dl-nn4" placeholder="品名④" autocomplete="off"><datalist id="dl-nn4"></datalist></div>
-        <div class="field"><input type="text" id="nps4" list="dl-nps4" placeholder="01" autocomplete="off"><datalist id="dl-nps4"></datalist></div>
-        <div class="field"><input type="text" id="npe4" list="dl-npe4" placeholder="05" autocomplete="off"><datalist id="dl-npe4"></datalist></div>
-      </div>
-      <div class="next-row">
-        <div class="field"><input type="text" id="nn5" list="dl-nn5" placeholder="品名⑤" autocomplete="off"><datalist id="dl-nn5"></datalist></div>
-        <div class="field"><input type="text" id="nps5" list="dl-nps5" placeholder="01" autocomplete="off"><datalist id="dl-nps5"></datalist></div>
-        <div class="field"><input type="text" id="npe5" list="dl-npe5" placeholder="05" autocomplete="off"><datalist id="dl-npe5"></datalist></div>
       </div>
     </div>
 
@@ -606,7 +682,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <span style="font-size:10px;color:#6a9fd8;font-weight:700;margin-right:6px;vertical-align:middle">ライン:</span>
       <span id="mob-line-btns"></span>
     </div>
-    <div class="view-main">
+    <div class="view-main" id="view-main">
       <div class="view-page" id="view-body">
         <div class="empty">読み込み中…</div>
       </div>
@@ -683,6 +759,10 @@ function saveMobSel(){ try{ localStorage.setItem(mobSelKey(), JSON.stringify([..
 function loadMobSel(){ try{ const s=localStorage.getItem(mobSelKey()); mobSelectedLines=s?new Set(JSON.parse(s)):new Set(); }catch(e){ mobSelectedLines=new Set(); } }
 let currentPage = 0;
 let pageTimer  = null;
+/* シネマティックモード用変数 */
+let cinemTimer = null;
+let cinemPage  = 0;
+let svgZoomRaf = null;
 
 /* ===== フロアマップ定義（M課 作業配置図.xlsx 準拠） ===== */
 // x,y はグリッド座標（列,行ブロック）。w,h はセルが占める列数・行ブロック数。
@@ -737,17 +817,6 @@ function normLineKey(s){
 function buildFloorMap(activeLineNos){
   const activeSet = new Set((activeLineNos||[]).map(normLineKey));
   // どのセルがアクティブか判定
-  // activeSetの各エントリを「純粋な数字」に正規化するヘルパー
-  // 例: "7L" → "7", "8ライン" → "8", "MC-2" → null（数字のみに変換不可）
-  function toNumKey(a){
-    // 純粋な数字
-    if(/^[0-9]+$/.test(a)) return a;
-    // 数字 + 末尾にL/l（例: "7L", "10L"）
-    if(/^[0-9]+[Ll]$/.test(a)) return a.replace(/[Ll]$/,'');
-    // 数字 + 日本語（例: "8ライン"）
-    if(/^[0-9]+[^\x00-\x7F]/.test(a)) return a.replace(/[^0-9]/g,'');
-    return null; // 英数混合（"MC-2"等）は null → 数値マッチ対象外
-  }
   const isActive = (cell)=>{
     if(!cell.match) return false;
     return cell.match.some(m=>{
@@ -756,13 +825,12 @@ function buildFloorMap(activeLineNos){
       for(const a of activeSet){
         if(a===nm) return true;
         if(nmIsNum){
-          const aNum = toNumKey(a);
-          if(aNum !== null && aNum === nm) return true;
+          // 数値マッチキーは数値部分の完全一致（例: "1L"→"1" が "1" に一致）
+          const aNumOnly = a.replace(/[^0-9]/g,'');
+          if(aNumOnly === nm) return true;
           continue;
         }
-        // 非数値マッチキー（シミズ, MC-2 等）
-        // activeSetのエントリが純粋数字 or 数字+Lなら比較しない
-        if(toNumKey(a) !== null && /^[0-9]/.test(a)) continue;
+        if(/^[0-9]+$/.test(a)) continue;
         if(a.includes(nm) || nm.includes(a)) return true;
       }
       return false;
@@ -770,10 +838,10 @@ function buildFloorMap(activeLineNos){
   };
 
   // 疑似3D: 各セルを台形（上面+前面）で表現。行ブロックごとにY間隔をしっかり空ける。
-  const CELL_W = 90, CELL_H = 75;
-  const ROW_GAP = 12; // 行ブロック間の縦ギャップ
-  const SKEW_X = 18;  // 奥行きによる水平スキュー（疑似3D感）
-  const DEPTH = 18;   // 前面の厚み
+  const CELL_W = 90, CELL_H = 110;
+  const ROW_GAP = 22; // 行ブロック間の縦ギャップ
+  const SKEW_X = 22;  // 奥行きによる水平スキュー（疑似3D感）
+  const DEPTH = 28;   // 前面の厚み
 
   // y座標(0,2,3)を実際の行インデックス(0,1,2)に詰める
   const Y_ROWS = [...new Set(FLOOR_CELLS.map(c=>c.y))].sort((a,b)=>a-b);
@@ -796,18 +864,11 @@ function buildFloorMap(activeLineNos){
     const active = isActive(cell);
     const {px,py,pw,ph} = cellRect(cell);
 
-    let topFill, frontFill, stroke, sw;
-    if(cell.type==='line'){
-      topFill = active ? 'url(#gradActiveTop)' : 'url(#gradLineTop)';
-      frontFill = active ? 'url(#gradActiveFront)' : 'url(#gradLineFront)';
-      stroke = active ? '#7df4ff' : 'rgba(120,180,255,.5)';
-      sw = active ? 2.5 : 1;
-    } else {
-      topFill = 'url(#gradAuxTop)';
-      frontFill = 'url(#gradAuxFront)';
-      stroke = 'rgba(100,150,210,.25)';
-      sw = 1;
-    }
+    // 最初は常に通常色。2秒後にJS側でsvgに.map-revealedを付けてCSSで水色に切替。
+    const topFill   = cell.type==='line' ? 'url(#gradLineTop)'   : 'url(#gradAuxTop)';
+    const frontFill = cell.type==='line' ? 'url(#gradLineFront)' : 'url(#gradAuxFront)';
+    const stroke    = cell.type==='line' ? 'rgba(120,180,255,.5)' : 'rgba(100,150,210,.25)';
+    const sw        = 1;
 
     const topPts = [
       [px, py],
@@ -822,19 +883,23 @@ function buildFloorMap(activeLineNos){
       [px-6, py+ph]
     ].map(p=>p.join(',')).join(' ');
 
-    shapes += `<polygon points="${topPts}" fill="${topFill}" stroke="${stroke}" stroke-width="${sw}"${active?' class="active-cell" filter="url(#glow)"':''}/>`;
-    shapes += `<polygon points="${frontPts}" fill="${frontFill}" stroke="${stroke}" stroke-width="${sw*0.7}"${active?' filter="url(#glow)"':''}/>`;
+    const activeAttr = active ? ' data-active="1"' : '';
+    shapes += `<polygon points="${topPts}" fill="${topFill}" stroke="${stroke}" stroke-width="${sw}" class="map-top"${activeAttr}/>`;
+    shapes += `<polygon points="${frontPts}" fill="${frontFill}" stroke="${stroke}" stroke-width="${sw*0.7}" class="map-front"${activeAttr}/>`;
     if(active){
-      // アクティブセルの外枠をアウトラインでさらに光らせる
-      shapes += `<polygon points="${topPts}" fill="none" stroke="rgba(200,245,255,.5)" stroke-width="1" opacity=".7"/>`;
+      // アクティブ色オーバーレイ（opacity:0→1 でフェードイン）
+      shapes += `<polygon points="${topPts}" fill="url(#gradActiveTop)" stroke="#7df4ff" stroke-width="2.5" class="map-overlay map-overlay-top" opacity="0"/>`;
+      shapes += `<polygon points="${frontPts}" fill="url(#gradActiveFront)" stroke="#7df4ff" stroke-width="1.75" class="map-overlay map-overlay-front" opacity="0"/>`;
     }
-
     const cx = px + pw/2 - 3;
     const cy = py + (ph-DEPTH)/2;
-    const fontSize = cell.label.length>5 ? 9 : 11;
-    const textColor = cell.type==='line' ? (active?'#ffffff':'#cfe6ff') : '#5f8fc0';
+    const fontSize = cell.label.length>5 ? 12 : 14;
     const cellIdx = FLOOR_CELLS.indexOf(cell);
-    labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="${active?'800':'600'}" fill="${textColor}" data-cellidx="${cellIdx}" style="cursor:${editPanelOpen?'pointer':'default'}" onclick="inlineEditMapLabel(event,${cellIdx})">${cell.label}</text>`;
+    labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="${cell.type==='line'?'#cfe6ff':'#5f8fc0'}" data-cellidx="${cellIdx}" class="map-label"${activeAttr} style="cursor:${editPanelOpen?'pointer':'default'}" onclick="inlineEditMapLabel(event,${cellIdx})">${cell.label}</text>`;
+    if(active){
+      // 白テキストオーバーレイ（フェードイン用）
+      labels += `<text x="${cx.toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="middle" font-size="${fontSize}" font-weight="800" fill="#ffffff" class="map-label-overlay" opacity="0" style="pointer-events:none">${cell.label}</text>`;
+    }
 
   });
 
@@ -919,8 +984,6 @@ const ALL_FIELDS=[
   ['nn1','dl-nn1'],['nps1','dl-nps1'],['npe1','dl-npe1'],
   ['nn2','dl-nn2'],['nps2','dl-nps2'],['npe2','dl-npe2'],
   ['nn3','dl-nn3'],['nps3','dl-nps3'],['npe3','dl-npe3'],
-  ['nn4','dl-nn4'],['nps4','dl-nps4'],['npe4','dl-npe4'],
-  ['nn5','dl-nn5'],['nps5','dl-nps5'],['npe5','dl-npe5'],
 ];
 function refreshAllDL(){ ALL_FIELDS.forEach(([fk,dl])=>buildDL(fk,dl)); }
 
@@ -945,7 +1008,7 @@ function fillForm(data){
     setChk('c1_'+(i+1),p.check1); setChk('c2_'+(i+1),p.check2);
   }
   const nexts=data.nexts||[];
-  for(let i=0;i<5;i++){
+  for(let i=0;i<3;i++){
     const n=nexts[i]||{};
     setV('nn'+(i+1),n.name); setV('nps'+(i+1),n.start); setV('npe'+(i+1),n.end);
   }
@@ -955,7 +1018,7 @@ function clearProductAndNext(){
     setV('pn'+i,''); setV('ps'+i,''); setV('pe'+i,'');
     setChk('c1_'+i,false); setChk('c2_'+i,false);
   }
-  for(let i=1;i<=5;i++){
+  for(let i=1;i<=3;i++){
     setV('nn'+i,''); setV('nps'+i,''); setV('npe'+i,'');
   }
 }
@@ -1007,10 +1070,6 @@ function toDocId(lineNo){
 
 window.resetForm = function(){
   setV('lineNo','');
-  const sel = document.getElementById('lineNo-select');
-  if(sel) sel.value = '';
-  const inp = document.getElementById('lineNo');
-  if(inp){ inp.style.display='none'; }
   // updaterはログイン者名を維持
   clearProductAndNext(); showBanner('');
   prevLineNo='';
@@ -1038,7 +1097,7 @@ window.saveData = async function(){
   const prods=[];
   for(let i=1;i<=5;i++) prods.push({name:v('pn'+i),start:v('ps'+i),end:v('pe'+i),check1:chk('c1_'+i),check2:chk('c2_'+i)});
   const nexts=[];
-  for(let i=1;i<=5;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
+  for(let i=1;i<=3;i++) nexts.push({name:v('nn'+i),start:v('nps'+i),end:v('npe'+i)});
 
   const updaterName = document.getElementById('updater').value || '';
   const data={lineNo, updater:updaterName, prods, nexts, updatedAt:new Date().toISOString()};
@@ -1072,6 +1131,9 @@ window.toggleEditPanel = function(){
   editPanelOpen = !editPanelOpen;
   const btn = document.getElementById('edit-mode-btn');
   if(editPanelOpen){
+    stopCinematic();
+    const vm=document.getElementById('view-main');
+    if(vm){vm.classList.remove('cine-map');vm.classList.add('cine-cards');}
     btn.classList.add('active');
     btn.textContent = '編集モード終了';
     // カードにedit-modeクラスを付与してヒントを表示
@@ -1082,6 +1144,7 @@ window.toggleEditPanel = function(){
     document.getElementById('view-body').classList.remove('edit-mode-active');
     // 編集中のinputがあれば元に戻す
     document.querySelectorAll('.vl-no-editing').forEach(el=>el.remove());
+    startCinematic();
   }
 };
 /* ===== インライン編集（セル共通） ===== */
@@ -1298,47 +1361,23 @@ window.editDeleteLine = async function(docId, lineNo){
   }
 };
 
-/* ===== ソート関数 =====
-   数値系ラインNo（1L,8L,13等）→ 数値昇順
-   非数値系（MC-2,シミズ,ムラタ,樹脂）→ FLOOR_CELLSの定義順
-   未登録ラインは末尾
-===== */
-// ラインNoを純粋な数字文字列に変換。変換できない場合は null
-function toNumKeySort(s){
-  if(/^[0-9]+$/.test(s)) return s;
-  if(/^[0-9]+[Ll]$/.test(s)) return s.replace(/[Ll]$/,'');
-  if(/^[0-9]+[^\x00-\x7F]/.test(s)) return s.replace(/[^0-9]/g,'');
-  return null;
-}
-// 非数値ラインの固定表示順リスト（FLOOR_CELLS の非数値 match から生成）
-function buildNonNumOrder(){
-  const order = [];
-  FLOOR_CELLS.forEach(cell=>{
-    if(cell.type!=='line') return;
-    (cell.match||[cell.label]).forEach(m=>{
-      const k = normLineKey(m);
-      if(/^[0-9]+$/.test(k)) return; // 数値は除外
-      if(!order.includes(k)) order.push(k);
-    });
-  });
-  return order;
-}
+/* ===== ソート関数（数値昇順→文字列後尾） ===== */
 function sortLines(lines){
-  const NON_NUM_ORDER = buildNonNumOrder();
-  function lineRank(lineNo){
-    const key = normLineKey(lineNo||'');
-    const keyNum = toNumKeySort(key);
-    if(keyNum !== null){
-      // 数値系：数値昇順のため rank = 数値そのもの（非数値より前）
-      return parseInt(keyNum, 10);
+  return [...lines].sort((a,b)=>{
+    const aNo=(a.lineNo||'').trim(), bNo=(b.lineNo||'').trim();
+    // 先頭の数値部分を抽出（例: "23L"→23, "A-01"→NaN）
+    const aMatch=aNo.match(/^(\d+)/), bMatch=bNo.match(/^(\d+)/);
+    const aNum=aMatch?parseInt(aMatch[1],10):NaN;
+    const bNum=bMatch?parseInt(bMatch[1],10):NaN;
+    const aHasNum=!isNaN(aNum), bHasNum=!isNaN(bNum);
+    if(aHasNum&&bHasNum){
+      if(aNum!==bNum) return aNum-bNum;
+      return aNo.localeCompare(bNo,'ja',{numeric:true});
     }
-    // 非数値系：NON_NUM_ORDER の位置 + 大きなオフセット（数値系の後ろに置く場合は逆）
-    // 数値系を前、非数値系を後ろにしたい場合は 100000 + idx
-    // 今回は数値系が前なので数値系rank=数値、非数値系rank=100000+idx
-    const idx = NON_NUM_ORDER.findIndex(o=> key===o || key.includes(o) || o.includes(key));
-    return idx >= 0 ? 100000 + idx : 200000;
-  }
-  return [...lines].sort((a,b)=> lineRank(a.lineNo) - lineRank(b.lineNo));
+    if(aHasNum) return -1;
+    if(bHasNum) return 1;
+    return aNo.localeCompare(bNo,'ja',{numeric:true});
+  });
 }
 
 /* ===== 閲覧レンダリング ===== */
@@ -1360,6 +1399,8 @@ function renderPage(pageIdx){
     el.innerHTML='<div class="empty" style="grid-column:1/-1">📋 登録データがありません</div>';
     renderPageDots(0,0); return;
   }
+  // 念のため常にソート（モバイルPWAキャッシュ対策含む）
+  allLines = sortLines(allLines);
   const isMobFilter = window.innerWidth<=600 && mobSelectedLines.size>0;
   const filteredLines = isMobFilter ? allLines.filter(l=>mobSelectedLines.has(l._id||toDocId(l.lineNo))) : allLines;
   const totalPages=Math.ceil(filteredLines.length/PAGE_SIZE)||1;
@@ -1575,57 +1616,145 @@ function stopPageTimer(){
   if(pageTimer){ clearInterval(pageTimer); pageTimer=null; }
 }
 
+/* ===== シネマティック閲覧ループ ===== */
+/* アクティブセルのバウンディングボックスを計算 */
+function getActiveCellsBBox(activeLineNos){
+  const CELL_W=90,CELL_H=75,ROW_GAP=12,SKEW_X=18;
+  const activeSet=new Set((activeLineNos||[]).map(normLineKey));
+  const Y_ROWS=[...new Set(FLOOR_CELLS.map(c=>c.y))].sort((a,b)=>a-b);
+  const ri=y=>Y_ROWS.indexOf(y);
+  const hits=FLOOR_CELLS.filter(cell=>{
+    if(!cell.match) return false;
+    return cell.match.some(m=>{
+      const nm=normLineKey(m),nmN=/^[0-9]+$/.test(nm);
+      for(const a of activeSet){
+        if(a===nm) return true;
+        if(nmN){if(a.replace(/[^0-9]/g,'')===nm) return true;continue;}
+        if(/^[0-9]+$/.test(a)) continue;
+        if(a.includes(nm)||nm.includes(a)) return true;
+      }
+      return false;
+    });
+  });
+  if(!hits.length) return null;
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  hits.forEach(cell=>{
+    const r=ri(cell.y);
+    const px=40+cell.x*CELL_W+r*SKEW_X, py=30+r*(CELL_H+ROW_GAP);
+    x0=Math.min(x0,px-6);  y0=Math.min(y0,py-6);
+    x1=Math.max(x1,px+cell.w*CELL_W-4+6); y1=Math.max(y1,py+CELL_H-4+6);
+  });
+  return {x:x0,y:y0,w:x1-x0,h:y1-y0};
+}
+
+/* SVG viewBox アニメーション */
+function stopSvgZoom(){if(svgZoomRaf){cancelAnimationFrame(svgZoomRaf);svgZoomRaf=null;}}
+function animateViewBox(svg,from,to,dur,onDone){
+  stopSvgZoom();
+  const t0=performance.now();
+  function step(now){
+    if(!svg.isConnected){svgZoomRaf=null;return;}
+    let t=Math.min((now-t0)/dur,1);
+    t=t<.5?2*t*t:-1+(4-2*t)*t; // ease-in-out
+    const vx=from.x+(to.x-from.x)*t, vy=from.y+(to.y-from.y)*t;
+    const vw=from.w+(to.w-from.w)*t, vh=from.h+(to.h-from.h)*t;
+    svg.setAttribute('viewBox',[vx,vy,vw,vh].map(v=>v.toFixed(1)).join(' '));
+    if(t<1) svgZoomRaf=requestAnimationFrame(step);
+    else{svgZoomRaf=null;if(onDone)onDone();}
+  }
+  svgZoomRaf=requestAnimationFrame(step);
+}
+
+/* シネマティックモード停止 */
+function stopCinematic(){
+  stopSvgZoom();
+  if(cinemTimer){clearTimeout(cinemTimer);cinemTimer=null;}
+  const vm=document.getElementById('view-main');
+  if(vm){vm.classList.remove('cine-map','cine-cards');}
+}
+
+/* シネマティックモード開始（デスクトップのみ） */
+function startCinematic(){
+  if(window.innerWidth<=600) return;
+  stopCinematic();
+  const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
+  // 現在表示中のページはすでに見えているので次ページから開始
+  // （1ページのみの場合は0から）
+  cinemPage=total>1 ? (currentPage+1)%total : 0;
+  runCinematicLoop();
+}
+
+/* シネマティックループ本体
+   必ずマップ全画面(Phase1) → カード(Phase2) の順で動く。
+   絶対にスキップしない。 */
+function runCinematicLoop(){
+  const vm=document.getElementById('view-main');
+  const pv=document.getElementById('pane-view');
+  if(!vm||!pv||!pv.classList.contains('active')) return;
+
+  const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
+  const pi=((cinemPage%total)+total)%total;
+  cinemPage=pi;
+
+  // ── Phase1開始：まずマップを全画面に切り替え ──
+  // view-page が opacity:0 にtransitionする（約0.6s）
+  vm.classList.remove('cine-cards');
+  vm.classList.add('cine-map');
+
+  // transitionが終わってからデータ差し替え（フェードアウト中に次ページが見えるのを防ぐ）
+  setTimeout(()=>{
+    renderPage(pi);
+
+    // SVGの色をリセット
+    const svgEl = document.querySelector('#floor-map-svg-wrap svg');
+    if(svgEl) svgEl.classList.remove('map-revealed');
+
+    // さらに2秒後にアクティブセルを水色にフェードイン
+    setTimeout(()=>{
+      const svg2 = document.querySelector('#floor-map-svg-wrap svg');
+      if(svg2) svg2.classList.add('map-revealed');
+    }, 2000);
+  }, 700); // view-pageのtransition duration(0.6s)より長く待つ
+
+  // Phase1終了 → Phase2(カード)へ
+  cinemTimer=setTimeout(()=>{
+    vm.classList.remove('cine-map');
+    vm.classList.add('cine-cards');
+    requestAnimationFrame(()=>fitPnameTexts());
+
+    // Phase2終了 → 次ページのPhase1へ
+    cinemTimer=setTimeout(()=>{
+      cinemPage = total>1 ? (pi+1)%total : pi;
+      runCinematicLoop();
+    },8000);
+
+  },5500);
+}
+
 /* ===== ページサイズ変更 ===== */
 window.changePageSize = function(val){
   PAGE_SIZE = parseInt(val, 10);
   currentPage = 0;
+  cinemPage = 0;
   renderPage(0);
-  stopPageTimer();
-  // 全ライン表示の場合はページ送りしない
-  if(PAGE_SIZE < 9999) startPageTimer();
+  stopCinematic();
+  // 全ライン表示の場合はシネマティックなし
+  if(PAGE_SIZE < 9999 && window.innerWidth > 600) startCinematic();
 };
 
 function renderLines(lines){
   allLines=sortLines(lines);
-  refreshLineSelect();
   renderMobLineFilter();
-  renderPage(currentPage);
-  if(editPanelOpen) renderEditPanel();
-}
-
-/* ===== 入力画面ラインセレクト更新 ===== */
-function refreshLineSelect(){
-  const sel = document.getElementById('lineNo-select');
-  if(!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">-- ライン選択 --</option>';
-  allLines.forEach(l=>{
-    const no = l.lineNo||'';
-    const disp = /^\d+$/.test(no) ? no+'L' : no;
-    const opt = document.createElement('option');
-    opt.value = no;
-    opt.textContent = disp;
-    sel.appendChild(opt);
-  });
-  // 選択状態を復元
-  if(current) sel.value = current;
-}
-
-window.onLineSelectChange = function(val){
-  const lineNoInput = document.getElementById('lineNo');
-  if(!val){
-    lineNoInput.value = '';
-    prevLineNo = '';
-    clearProductAndNext();
-    showBanner('');
-    return;
+  if(editPanelOpen){ renderPage(currentPage); renderEditPanel(); return; }
+  // シネマティック中はページ・フェーズを乱さない
+  // cinemTimerが動いている＝シネマティック中
+  if(cinemTimer != null){
+    // 現在のcinemPageでデータだけ静かに再描画（クラスは変えない）
+    renderPage(cinemPage);
+  } else {
+    renderPage(currentPage);
   }
-  lineNoInput.value = val;
-  // 既存データロード
-  prevLineNo = '';
-  onLineNoInput();
-};
-
+}
 function fitLineNos(){
   document.querySelectorAll('.vl-no').forEach(el=>{
     el.style.fontSize='';
@@ -1724,7 +1853,7 @@ function renderMobLineFilter(){
       border:1.5px solid ${on?'#7dd3fc':'rgba(100,160,255,.35)'};
       background:${on?'rgba(80,180,255,.25)':'rgba(0,20,60,.5)'};
       color:${on?'#7dd3fc':'rgba(160,200,255,.6)'};
-    ">${/^\d+$/.test(l.lineNo||'') ? l.lineNo+'L' : (l.lineNo||id)}</button>`;
+    ">${l.lineNo||id}</button>`;
   }).join('');
 }
 window.toggleMobLine=function(id){
@@ -1741,8 +1870,8 @@ window.switchTab=function(tab){
   const btn=document.querySelector(`.tab[onclick="switchTab('${tab}')"]`);
   if(btn) btn.classList.add('active');
   document.getElementById('pane-'+tab).classList.add('active');
-  if(tab==='view'){ startListener(); updateClock(); startPageTimer(); window.addEventListener('resize', fitPnameTexts); }
-  else{ stopPageTimer(); window.removeEventListener('resize', fitPnameTexts); startListener(); }
+  if(tab==='view'){ startListener(); updateClock(); startCinematic(); window.addEventListener('resize', fitPnameTexts); }
+  else{ stopListener(); stopCinematic(); window.removeEventListener('resize', fitPnameTexts); }
 };
 
 /* ===== ログイン / ログアウト ===== */
@@ -1807,8 +1936,6 @@ onAuthStateChanged(auth,user=>{
     // 旧形式ドキュメントIDの自動マイグレーション（ログイン時に1回実行）
     migrateOldDocIds();
     refreshAllDL();
-    // 入力タブ表示中もラインリストを取得するためリスナー開始
-    startListener();
     setStatus('fb-ok','✅ Firebase 接続完了 — リアルタイム共有が有効です');
   }else{
     currentUser=null;
@@ -1830,8 +1957,15 @@ onAuthStateChanged(auth,user=>{
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('./sw.js')
-        .then(function(reg) { console.log('[SW] 登録完了 scope:', reg.scope); })
+        .then(function(reg) {
+          console.log('[SW] 登録完了 scope:', reg.scope);
+          reg.update(); // 常に最新版を確認
+        })
         .catch(function(e) { console.warn('[SW] 登録失敗:', e.message); });
+    });
+    // キャッシュ更新時に自動リロード
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      window.location.reload();
     });
   }
 </script>
