@@ -99,6 +99,7 @@ body{font-family:sans-serif;font-size:14px;background:#f0f2f5;color:#222;min-hei
 .view-ctrl{display:flex;align-items:center;gap:8px}
 .ref-btn{padding:5px 12px;border:1px solid rgba(160,210,255,.45);border-radius:6px;background:rgba(160,210,255,.12);font-size:12px;cursor:pointer;color:#aed8ff;transition:all .15s}
 .ref-btn:hover{background:rgba(160,210,255,.25);color:#cceeff}
+.ref-btn.manual-on{background:rgba(29,158,117,.35);border-color:rgba(29,200,140,.6);color:#3dffb0}
 .back-btn{padding:5px 12px;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.06);font-size:12px;cursor:pointer;color:#aaa;transition:all .15s}
 .back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 .clock{font-size:30px;font-weight:700;color:#fff;letter-spacing:.12em;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(180,220,255,.9);min-width:120px;text-align:right}
@@ -496,12 +497,9 @@ input,textarea{-webkit-user-select:text;user-select:text}
 }
 .view-main.cine-cards .vline{
   animation:cardBlastIn .55s cubic-bezier(.22,1,.36,1) both;
+  /* 遅延はJSでvline毎にinlineで設定するためここでは0sのまま */
   animation-delay:0s;
 }
-.view-main.cine-cards .vline:nth-child(2){animation-delay:.13s}
-.view-main.cine-cards .vline:nth-child(3){animation-delay:.26s}
-.view-main.cine-cards .vline:nth-child(4){animation-delay:.39s}
-.view-main.cine-cards .vline:nth-child(5){animation-delay:.52s}
 </style>
   <!-- PWA -->
   <link rel="manifest" id="pwa-manifest">
@@ -673,6 +671,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
           </select>
         </div>
         <div class="page-indicator" id="page-indicator"></div>
+        <button id="auto-manual-btn" class="ref-btn" onclick="toggleManualMode()" style="white-space:nowrap">⏸ 手動</button>
         <button class="back-btn" onclick="switchTab('input')">← 入力画面</button>
         <div class="clock" id="clock">--:--:--</div>
       </div>
@@ -763,6 +762,7 @@ let pageTimer  = null;
 let cinemTimer = null;
 let cinemPage  = 0;
 let svgZoomRaf = null;
+let manualMode = false; // true=手動送りモード（自動再生OFF・マップ非表示）
 
 /* ===== フロアマップ定義（M課 作業配置図.xlsx 準拠） ===== */
 // x,y はグリッド座標（列,行ブロック）。w,h はセルが占める列数・行ブロック数。
@@ -825,7 +825,9 @@ function buildFloorMap(activeLineNos){
       for(const a of activeSet){
         if(a===nm) return true;
         if(nmIsNum){
-          // 数値マッチキーは数値部分の完全一致（例: "1L"→"1" が "1" に一致）
+          // 数値マッチキーは「先頭が数字で始まる」ラインのみ対象
+          // 例: "1L","1ライン" → OK / "MC-1","MC1" → 先頭が英字なのでスキップ
+          if(!/^[0-9]/.test(a)) continue;
           const aNumOnly = a.replace(/[^0-9]/g,'');
           if(aNumOnly === nm) return true;
           continue;
@@ -1548,6 +1550,11 @@ function renderPage(pageIdx){
 
   renderPageDots(pi,totalPages);
 
+  // カード出現アニメーションの遅延を上から順に設定（nth-childに依存しないのでライン数が何枚でも正しく動く）
+  el.querySelectorAll('.vline').forEach((vline, i) => {
+    vline.style.animationDelay = (i * 0.13) + 's';
+  });
+
   const isMobile = window.innerWidth <= 600;
   const isAll = PAGE_SIZE >= 9999;
   const viewPage = document.getElementById('view-body');
@@ -1596,11 +1603,45 @@ function renderPageDots(pi,total){
   const el=document.getElementById('page-indicator');
   if(!el) return;
   el.innerHTML='';
+  if(total<=1 && !manualMode) return;
+
+  // 手動モード時は ◀ ドット… ▶ の前後ボタン付き
+  if(manualMode){
+    const prev=document.createElement('button');
+    prev.textContent='◀';
+    prev.style.cssText='background:rgba(160,210,255,.15);border:1px solid rgba(160,210,255,.4);color:#aed8ff;border-radius:5px;padding:2px 8px;font-size:12px;cursor:pointer;margin-right:4px;';
+    prev.onclick=()=>{
+      const t=Math.ceil(allLines.length/PAGE_SIZE)||1;
+      currentPage=((currentPage-1)+t)%t;
+      cinemPage=currentPage;
+      renderPage(currentPage);
+    };
+    el.appendChild(prev);
+  }
+
   for(let i=0;i<total;i++){
     const d=document.createElement('div');
     d.className='page-dot'+(i===pi?' active':'');
-    d.onclick=(()=>{const idx=i; return ()=>{ stopPageTimer(); currentPage=idx; renderPage(idx); startPageTimer(); };})();
+    d.onclick=(()=>{const idx=i; return ()=>{
+      stopCinematic();
+      currentPage=idx; cinemPage=idx;
+      renderPage(idx);
+      if(!manualMode && PAGE_SIZE<9999 && window.innerWidth>600) startCinematic();
+    };})();
     el.appendChild(d);
+  }
+
+  if(manualMode){
+    const next=document.createElement('button');
+    next.textContent='▶';
+    next.style.cssText='background:rgba(160,210,255,.15);border:1px solid rgba(160,210,255,.4);color:#aed8ff;border-radius:5px;padding:2px 8px;font-size:12px;cursor:pointer;margin-left:4px;';
+    next.onclick=()=>{
+      const t=Math.ceil(allLines.length/PAGE_SIZE)||1;
+      currentPage=(currentPage+1)%t;
+      cinemPage=currentPage;
+      renderPage(currentPage);
+    };
+    el.appendChild(next);
   }
 }
 
@@ -1673,84 +1714,134 @@ function stopCinematic(){
   if(vm){vm.classList.remove('cine-map','cine-cards');}
 }
 
-/* シネマティックモード開始（デスクトップのみ） */
+/* シネマティックモード開始（デスクトップ・自動モードのみ） */
 function startCinematic(){
   if(window.innerWidth<=600) return;
+  if(manualMode) return;
   stopCinematic();
   const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
-  // 現在表示中のページはすでに見えているので次ページから開始
-  // （1ページのみの場合は0から）
   cinemPage=total>1 ? (currentPage+1)%total : 0;
   runCinematicLoop();
 }
 
 /* シネマティックループ本体
-   必ずマップ全画面(Phase1) → カード(Phase2) の順で動く。
-   絶対にスキップしない。 */
+   Phase1(マップ全画面, 5.5秒) → Phase2(カード, 15秒) → 次ページのPhase1…
+   ページは 0→1→2→…→(total-1)→0 と必ず順番に進む。 */
 function runCinematicLoop(){
   const vm=document.getElementById('view-main');
   const pv=document.getElementById('pane-view');
   if(!vm||!pv||!pv.classList.contains('active')) return;
+  if(manualMode) return;
 
   const total=Math.ceil(allLines.length/PAGE_SIZE)||1;
   const pi=((cinemPage%total)+total)%total;
   cinemPage=pi;
+  currentPage=pi;
 
-  // ── Phase1開始：まずマップを全画面に切り替え ──
-  // view-page が opacity:0 にtransitionする（約0.6s）
+  // ── Phase1開始：マップを全画面に切り替え ──
   vm.classList.remove('cine-cards');
   vm.classList.add('cine-map');
 
-  // transitionが終わってからデータ差し替え（フェードアウト中に次ページが見えるのを防ぐ）
+  // 旧ページのマップハイライトをトランジションなしで即時消去
+  const svgNow=document.querySelector('#floor-map-svg-wrap svg');
+  if(svgNow){
+    svgNow.classList.remove('map-revealed');
+    svgNow.querySelectorAll('.map-overlay,.map-label-overlay').forEach(el=>{
+      el.style.transition='none';
+      el.style.opacity='0';
+    });
+  }
+
+  // カードのフェードアウト(0.7s)が終わってからデータ差し替え
   setTimeout(()=>{
     renderPage(pi);
-
-    // SVGの色をリセット
-    const svgEl = document.querySelector('#floor-map-svg-wrap svg');
-    if(svgEl) svgEl.classList.remove('map-revealed');
-
-    // さらに2秒後にアクティブセルを水色にフェードイン
+    // 2秒後にアクティブセルを水色フェードイン
     setTimeout(()=>{
-      const svg2 = document.querySelector('#floor-map-svg-wrap svg');
+      const svg2=document.querySelector('#floor-map-svg-wrap svg');
       if(svg2) svg2.classList.add('map-revealed');
-    }, 2000);
-  }, 700); // view-pageのtransition duration(0.6s)より長く待つ
+    },2000);
+  },700);
 
-  // Phase1終了 → Phase2(カード)へ
+  // Phase1終了(5.5秒後) → Phase2(カード表示)へ
   cinemTimer=setTimeout(()=>{
+    cinemTimer=null;
     vm.classList.remove('cine-map');
     vm.classList.add('cine-cards');
     requestAnimationFrame(()=>fitPnameTexts());
 
-    // Phase2終了 → 次ページのPhase1へ
+    // Phase2終了(15秒後) → 次ページ(pi+1)のPhase1へ
     cinemTimer=setTimeout(()=>{
-      cinemPage = total>1 ? (pi+1)%total : pi;
+      cinemTimer=null;
+      const newTotal=Math.ceil(allLines.length/PAGE_SIZE)||1;
+      cinemPage=(pi+1)%newTotal;
       runCinematicLoop();
-    },8000);
+    },15000);
 
   },5500);
 }
+
+/* 自動/手動モード切替 */
+window.toggleManualMode=function(){
+  manualMode=!manualMode;
+  const btn=document.getElementById('auto-manual-btn');
+  const mapWrap=document.getElementById('view-main');
+  const floorMap=document.querySelector('.floor-map-wrap');
+  if(manualMode){
+    stopCinematic();
+    if(btn){ btn.textContent='▶ 自動'; btn.classList.add('manual-on'); }
+    if(mapWrap){ mapWrap.classList.remove('cine-map'); mapWrap.classList.add('cine-cards'); }
+    if(floorMap) floorMap.style.display='none';
+    renderPage(currentPage);
+  } else {
+    if(btn){ btn.textContent='⏸ 手動'; btn.classList.remove('manual-on'); }
+    if(floorMap) floorMap.style.display='';
+    if(PAGE_SIZE<9999&&window.innerWidth>600) startCinematic();
+  }
+};
 
 /* ===== ページサイズ変更 ===== */
 window.changePageSize = function(val){
   PAGE_SIZE = parseInt(val, 10);
   currentPage = 0;
   cinemPage = 0;
-  renderPage(0);
   stopCinematic();
-  // 全ライン表示の場合はシネマティックなし
-  if(PAGE_SIZE < 9999 && window.innerWidth > 600) startCinematic();
+  renderPage(0);
+  // 手動モード・全ライン表示・モバイルはシネマティックなし
+  if(!manualMode && PAGE_SIZE < 9999 && window.innerWidth > 600) startCinematic();
 };
 
 function renderLines(lines){
-  allLines=sortLines(lines);
+  // 同じlineNoを持つドキュメントが複数存在する場合（旧形式IDと新形式IDの共存等）、
+  // updatedAtが新しい方を優先して重複を除去し、同じラインが連続表示されるのを防ぐ
+  const seen = new Map();
+  for(const l of lines){
+    const key = (l.lineNo||'').trim();
+    if(!key) continue;
+    const existing = seen.get(key);
+    if(!existing || (l.updatedAt||'') > (existing.updatedAt||'')){
+      seen.set(key, l);
+    }
+  }
+  allLines=sortLines([...seen.values()]);
   renderMobLineFilter();
   if(editPanelOpen){ renderPage(currentPage); renderEditPanel(); return; }
+  // 手動モード中は常にcurrentPageで再描画
+  if(manualMode){ renderPage(currentPage); return; }
   // シネマティック中はページ・フェーズを乱さない
-  // cinemTimerが動いている＝シネマティック中
   if(cinemTimer != null){
     // 現在のcinemPageでデータだけ静かに再描画（クラスは変えない）
     renderPage(cinemPage);
+    // ★ cine-cards フェーズ中（Phase2）は再描画で新 .vline に cardBlastIn が
+    //    即トリガーされてしまうため、animation を none で抑制して即表示させる
+    const _vm = document.getElementById('view-main');
+    if(_vm && _vm.classList.contains('cine-cards')){
+      document.querySelectorAll('#view-body .vline').forEach(v=>{
+        v.style.animation = 'none';
+        v.style.opacity   = '1';
+        v.style.transform = 'none';
+        v.style.filter    = 'none';
+      });
+    }
   } else {
     renderPage(currentPage);
   }
@@ -1831,9 +1922,38 @@ function stopListener(){
 }
 
 /* ===== 時計 ===== */
+let _lastResetDate = ''; // 最後にリセットを実行した日付（YYYY-MM-DD）
+
+async function resetAllChecks(){
+  // 全ラインのcheck1・check2をfalseにしてFirestoreへ一括書き込み
+  const snap = await getDocs(query(collection(db, COL)));
+  const writes = [];
+  snap.forEach(d=>{
+    const data = d.data();
+    const prods = (data.prods||[]).map(p=>({...p, check1:false, check2:false}));
+    if(JSON.stringify(prods)!==JSON.stringify(data.prods||[])){
+      writes.push(setDoc(doc(db, COL, d.id), {...data, prods, updatedAt:new Date().toISOString()}));
+    }
+  });
+  if(writes.length){
+    await Promise.all(writes);
+    console.log('[18:00リセット] 中間検査チェックをリセットしました:', new Date().toLocaleString('ja-JP'));
+    showToast('🔄 18:00 中間検査チェックをリセットしました', true);
+  }
+}
+
 function updateClock(){
   const el=document.getElementById('clock');
-  if(el) el.textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const now=new Date();
+  if(el) el.textContent=now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  // 18:00:00 になったら中間検査チェックをリセット（1日1回のみ）
+  const h=now.getHours(), m=now.getMinutes(), s=now.getSeconds();
+  const todayStr=now.toISOString().slice(0,10); // YYYY-MM-DD
+  if(h===18 && m===0 && s===0 && _lastResetDate!==todayStr && currentUser){
+    _lastResetDate=todayStr;
+    resetAllChecks().catch(e=>console.warn('[リセット失敗]',e));
+  }
 }
 setInterval(updateClock,1000);
 
@@ -1870,8 +1990,20 @@ window.switchTab=function(tab){
   const btn=document.querySelector(`.tab[onclick="switchTab('${tab}')"]`);
   if(btn) btn.classList.add('active');
   document.getElementById('pane-'+tab).classList.add('active');
-  if(tab==='view'){ startListener(); updateClock(); startCinematic(); window.addEventListener('resize', fitPnameTexts); }
-  else{ stopListener(); stopCinematic(); window.removeEventListener('resize', fitPnameTexts); }
+  if(tab==='view'){
+    startListener(); updateClock();
+    if(manualMode){
+      // 手動モード復元：マップ非表示・カード全画面
+      const vm=document.getElementById('view-main');
+      const fm=document.querySelector('.floor-map-wrap');
+      if(vm){ vm.classList.remove('cine-map'); vm.classList.add('cine-cards'); }
+      if(fm) fm.style.display='none';
+      renderPage(currentPage);
+    } else {
+      startCinematic();
+    }
+    window.addEventListener('resize', fitPnameTexts);
+  } else { stopListener(); stopCinematic(); window.removeEventListener('resize', fitPnameTexts); }
 };
 
 /* ===== ログイン / ログアウト ===== */
