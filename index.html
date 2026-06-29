@@ -844,7 +844,7 @@ const FLOOR_CELLS = [
   {x:13,y:0,w:1,h:1,label:'17ライン',type:'line',match:['17']},
   {x:14,y:0,w:1,h:1,label:'16ライン',type:'line',match:['16']},
   {x:15,y:0,w:1,h:1,label:'MC-1',type:'line',match:['MC-1','MC1']},
-  {x:16,y:0,w:1,h:1,label:'シミズ',type:'line',match:['シミズ']},
+  {x:16,y:0,w:1,h:1,label:'RB-1',type:'line',match:['RB-1','RB1','シミズ']},
   {x:17,y:0,w:1,h:1,label:'出荷作業場',type:'aux'},
   // 中段（row9）
   {x:1,y:1,w:1,h:1,label:'15ライン',type:'line',match:['15']},
@@ -864,7 +864,7 @@ const FLOOR_CELLS = [
   // 下段（row14）
   {x:6,y:2,w:1,h:1,label:'樹脂ライン',type:'line',match:['樹脂']},
   {x:7,y:2,w:4,h:1,label:'MC-2',type:'line',match:['MC-2','MC2']},
-  {x:11,y:2,w:2,h:1,label:'ムラタ',type:'line',match:['ムラタ']},
+  {x:11,y:2,w:2,h:1,label:'RB-2',type:'line',match:['RB-2','RB2','ムラタ']},
   {x:13,y:2,w:1,h:1,label:'在庫置場',type:'aux'},
   {x:14,y:2,w:2,h:1,label:'RBパレット置場',type:'aux'},
 ];
@@ -1114,6 +1114,17 @@ function clearProductAndNext(){
   }
 }
 
+/* ===== ラインNo. 表示名マッピング（DB値→表示ラベル変換） ===== */
+const LINE_LABEL_MAP = {
+  'シミズ': 'RB-1',
+  'ムラタ': 'RB-2',
+};
+function dispLabel(no){
+  if(!no) return no;
+  if(LINE_LABEL_MAP[no]) return LINE_LABEL_MAP[no];
+  return /^\d+$/.test(no) ? no + 'L' : no;
+}
+
 /* ===== ラインNo. カスタムドロップダウン ===== */
 let _lineNoDropdownOpen = false;
 
@@ -1134,7 +1145,7 @@ function updateLineNoSelect(){
   allLines.forEach(l=>{
     const no = l.lineNo || '';
     if(!no) return;
-    const label = /^\d+$/.test(no) ? no + 'L' : no;
+    const label = dispLabel(no);
     const isSelected = (no === curVal);
     html += `<div onclick="onLineNoSelectChange('${no.replace(/'/g,"\'")}')"
       style="padding:10px 14px;font-size:14px;cursor:pointer;color:${isSelected?'#1D9E75':'#222'};
@@ -1216,7 +1227,7 @@ window.onLineNoSelectChange = function(val){
   }
   // 既存ライン選択
   document.getElementById('lineNo-hidden').value = val;
-  const label = /^\d+$/.test(val) ? val + 'L' : val;
+  const label = dispLabel(val);
   document.getElementById('lineNo-display-text').textContent = label;
   document.getElementById('lineNo-display-text').style.color = '#222';
   document.getElementById('lineNo-new-wrap').style.display = 'none';
@@ -1228,9 +1239,9 @@ window.onLineNoSelectChange = function(val){
       const snap = await getDoc(doc(db, COL, toDocId(val)));
       if(snap.exists()){
         fillForm(snap.data());
-        showBanner('ライン ' + val + ' の既存データを読み込みました（上書き更新モード）');
+        showBanner('ライン ' + dispLabel(val) + ' の既存データを読み込みました（上書き更新モード）');
       } else {
-        showBanner('新規ライン ' + val + ' として登録します');
+        showBanner('新規ライン ' + dispLabel(val) + ' として登録します');
       }
     }catch(e){}
   }, 0);
@@ -1243,9 +1254,9 @@ window.toggleNewLineInput = function(){
 /* ライン No. 入力→前回データ自動ロード
    ラインNoが変わるたびに毎回Firestoreを検索。
    既存データがあれば読み込み、なければ空欄のまま新規入力モード。
-   これにより「ムラタ→リセット→シミズ」と入力し直した場合、
-   シミズの既存データ（あれば）を正しくロードし、
-   保存時はシミズのドキュメントに書き込む。 */
+   これにより「RB-2→リセット→RB-1」と入力し直した場合、
+   RB-1の既存データ（あれば）を正しくロードし、
+   保存時はRB-1のドキュメントに書き込む。 */
 let lineTimer=null;
 let prevLineNo=''; // 直前のラインNo（変化検知用）
 
@@ -1781,7 +1792,7 @@ function renderPage(pageIdx){
 
     return `<div class="vline">
       <div class="vl-hd">
-        <span class="vl-no" title="クリックして編集" style="cursor:pointer" onclick="inlineEditLineNo('${docId}','${l.lineNo}',this)">${/^\d+$/.test(l.lineNo) ? l.lineNo + 'L' : l.lineNo}</span>
+        <span class="vl-no" title="クリックして編集" style="cursor:pointer" onclick="inlineEditLineNo('${docId}','${l.lineNo}',this)">${dispLabel(l.lineNo)}</span>
         ${l.updater?`<span class="vl-who">${l.updater}</span>`:''}
         <button class="vl-card-del-btn" onclick="editDeleteLine('${docId}','${l.lineNo}')">🗑 削除</button>
       </div>
@@ -2395,7 +2406,7 @@ function renderMobLineFilter(){
       border:1.5px solid ${on?'#7dd3fc':'rgba(100,160,255,.35)'};
       background:${on?'rgba(80,180,255,.25)':'rgba(0,20,60,.5)'};
       color:${on?'#7dd3fc':'rgba(160,200,255,.6)'};
-    ">${l.lineNo||id}</button>`;
+    ">${dispLabel(l.lineNo||id)}</button>`;
   }).join('');
 }
 window.toggleMobLine=function(id){
